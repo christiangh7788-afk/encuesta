@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuesta · Máquina de Muñecos · Neto Veracruz</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#13294b; --navy2:#1e3a6b; --orange:#f47920; --teal:#1FA89B;
+    --si:#1FA89B; --no:#e05555; --pend:#c8ccd4;
+    --bg:#f3f5f9; --card:#ffffff; --line:#e4e8ef; --ink:#1b2534; --muted:#6b7688;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);
+    -webkit-tap-highlight-color:transparent;padding-bottom:40px}
+  header{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;padding:16px 18px;
+    display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+  .logo{width:40px;height:40px;border-radius:10px;background:var(--orange);display:grid;place-items:center;
+    font-size:22px;flex:0 0 auto}
+  header h1{font-size:16px;font-weight:700;line-height:1.15}
+  header p{font-size:11px;opacity:.75;font-weight:400}
+  .demo-banner{background:#fff5e6;color:#8a5200;font-size:12px;text-align:center;padding:6px;
+    border-bottom:1px solid #f0d9a8;font-weight:600}
+  .tabs{display:flex;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:72px;z-index:15}
+  .tab{flex:1;padding:13px;text-align:center;font-weight:700;font-size:14px;color:var(--muted);
+    border-bottom:3px solid transparent;cursor:pointer;user-select:none}
+  .tab.active{color:var(--navy);border-bottom-color:var(--orange)}
+  .wrap{max-width:640px;margin:0 auto;padding:18px 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+  label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:0 0 6px 2px;
+    text-transform:uppercase;letter-spacing:.4px}
+  select,input[type=text]{width:100%;padding:13px 12px;border:1.5px solid var(--line);border-radius:10px;
+    font-size:15px;background:#fff;color:var(--ink);margin-bottom:14px;appearance:none}
+  select:focus,input:focus{outline:none;border-color:var(--navy2)}
+  select:disabled{background:#f1f2f5;color:#aab}
+  .q{font-size:17px;font-weight:700;text-align:center;margin:6px 0 16px;color:var(--navy)}
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .big{padding:26px 10px;border:none;border-radius:14px;font-size:22px;font-weight:800;color:#fff;
+    cursor:pointer;transition:transform .05s, filter .15s;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .big:active{transform:scale(.97)}
+  .big.si{background:var(--si)} .big.no{background:var(--no)}
+  .big:disabled{opacity:.4;cursor:not-allowed}
+  .big small{font-size:12px;font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:1px}
+  .msg{text-align:center;padding:14px;border-radius:10px;font-weight:700;margin-top:14px;display:none}
+  .msg.ok{background:#e6f6f3;color:#0d6e60;display:block}
+  .msg.err{background:#fdeaea;color:#b02a2a;display:block}
+  .msg.load{background:#eef2fb;color:#3552a0;display:block}
+  /* Resumen */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
+  .stat .n{font-size:26px;font-weight:800;line-height:1}
+  .stat .l{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:4px;letter-spacing:.3px}
+  .stat.si .n{color:var(--si)} .stat.no .n{color:var(--no)} .stat.pend .n{color:#9aa2b1} .stat.tot .n{color:var(--navy)}
+  .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .filters .full{grid-column:1/-1}
+  .filters select,.filters input{margin-bottom:0}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--navy);color:#fff;padding:9px 8px;text-align:left;font-size:11px;text-transform:uppercase;
+    letter-spacing:.3px;position:sticky;top:0}
+  td{padding:9px 8px;border-bottom:1px solid var(--line)}
+  tr:nth-child(even) td{background:#fafbfd}
+  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;color:#fff}
+  .pill.si{background:var(--si)} .pill.no{background:var(--no)} .pill.pend{background:#aab1bd}
+  .tablebox{max-height:60vh;overflow:auto;border:1px solid var(--line);border-radius:12px}
+  .toolbar{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+  .btn{padding:10px 16px;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;
+    background:var(--navy);color:#fff}
+  .btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+  .btn.orange{background:var(--orange)}
+  .chartbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;height:220px;position:relative}
+  .gate{max-width:340px;margin:60px auto;text-align:center}
+  .hide{display:none!important}
+  .eco{font-weight:700;color:var(--navy2)}
+  @media(max-width:480px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    header h1{font-size:14px}
+    td,th{padding:8px 6px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎯</div>
+  <div>
+    <h1>Encuesta · Máquina de Muñecos</h1>
+    <p>Neto · Compañía Veracruz</p>
+  </div>
+</header>
+<div class="demo-banner hide" id="demoBanner">⚠️ MODO DEMO — configura APPS_SCRIPT_URL para guardar en la nube</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="responder">Responder</div>
+  <div class="tab" data-tab="resumen">Resumen</div>
+</div>
+
+<!-- ================= RESPONDER ================= -->
+<div class="wrap" id="tab-responder">
+  <div class="card">
+    <label>Región</label>
+    <select id="selRegion"><option value="">Selecciona región…</option></select>
+
+    <label>Zona</label>
+    <select id="selZona" disabled><option value="">Selecciona zona…</option></select>
+
+    <label>Tienda</label>
+    <select id="selTienda" disabled><option value="">Selecciona tienda…</option></select>
+
+    <label>Nombre de quien responde (opcional)</label>
+    <input type="text" id="inpUsuario" placeholder="Ej. Ignacio Arcos" />
+  </div>
+
+  <div class="card" id="questionCard" style="opacity:.5;pointer-events:none">
+    <div class="q">¿Esta tienda tiene máquina de muñecos (grúa)?</div>
+    <div class="btns">
+      <button class="big si" id="btnSi" disabled>✅<span>SÍ</span><small>tiene máquina</small></button>
+      <button class="big no" id="btnNo" disabled>❌<span>NO</span><small>no tiene</small></button>
+    </div>
+    <div class="msg" id="respMsg"></div>
+  </div>
+</div>
+
+<!-- ================= RESUMEN ================= -->
+<div class="wrap hide" id="tab-resumen">
+  <!-- Gate -->
+  <div class="gate card" id="gate">
+    <div class="q">🔒 Acceso al resumen</div>
+    <input type="text" id="pass" placeholder="Contraseña" style="text-align:center">
+    <button class="btn orange" style="width:100%" onclick="checkPass()">Entrar</button>
+    <div class="msg err" id="gateMsg"></div>
+  </div>
+
+  <div id="resumenBody" class="hide">
+    <div class="stats">
+      <div class="stat tot"><div class="n" id="stTot">0</div><div class="l">Tiendas</div></div>
+      <div class="stat si"><div class="n" id="stSi">0</div><div class="l">Con máquina</div></div>
+      <div class="stat no"><div class="n" id="stNo">0</div><div class="l">Sin máquina</div></div>
+      <div class="stat pend"><div class="n" id="stPend">0</div><div class="l">Pendientes</div></div>
+    </div>
+
+    <div class="chartbox"><canvas id="chart"></canvas></div>
+
+    <div class="card" style="padding:14px">
+      <div class="filters">
+        <div><label>Región</label><select id="fRegion"><option value="">Todas</option></select></div>
+        <div><label>Zona</label><select id="fZona"><option value="">Todas</option></select></div>
+        <div><label>Estado</label>
+          <select id="fEstado">
+            <option value="">Todos</option>
+            <option value="Sí">Con máquina (Sí)</option>
+            <option value="No">Sin máquina (No)</option>
+            <option value="Pendiente">Pendientes</option>
+          </select>
+        </div>
+        <div><label>Buscar</label><input type="text" id="fBuscar" placeholder="ECO o nombre…"></div>
+      </div>
+      <div class="toolbar">
+        <button class="btn" onclick="cargarResumen()">🔄 Actualizar</button>
+        <button class="btn orange" onclick="exportCSV()">⬇️ Exportar CSV</button>
+      </div>
+    </div>
+
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>ECO</th><th>Tienda</th><th>Región</th><th>Zona</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="msg load hide" id="resMsg" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================ */
+
+// 1) Pega aquí la URL del Apps Script publicado (termina en /exec).
+//    Si la dejas vacía, la app corre en MODO DEMO (datos solo en memoria).
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYga8hUhBti0o_YjdYOIVWl95uaeK2rjSTau_0I2SXXT0bV67caKRm828sLFHCjuqK/exec";
+
+// 2) Contraseña del resumen
+const RESUMEN_PASS = "campo26";
+
+// 3) CATÁLOGO DE TIENDAS  ← REEMPLAZAR con las 246 reales (ECO, nombre, region, zona)
+//    Formato: {eco, nombre, region, zona}
+const CATALOGO = [
+  {eco:347, nombre:"Av Quevedo", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:565, nombre:"Calle 8 Col Carranza", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:737, nombre:"El morro Veracruz", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:821, nombre:"Boca del Rio Centro", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:932, nombre:"J.B. Lobos", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:1261, nombre:"Vistamar", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:8927, nombre:"Juan Soto", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:9029, nombre:"Pages", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
+  {eco:415, nombre:"Actopan San Francisco", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:426, nombre:"Paso De Ovejas Insurgentes 1", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:702, nombre:"Cardel Revolucion", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:705, nombre:"Carrizal Zapata", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:853, nombre:"Palma Sola Veracruz", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:1349, nombre:"Tierra Colorada Ver", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:8940, nombre:"Mercadito Cardel", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:9019, nombre:"Cempoala", region:"Veracruz Centro", zona:"CARDEL"},
+  {eco:125, nombre:"Teocelo 5 de Mayo", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:135, nombre:"Martires del 28", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:272, nombre:"Coatepec Mercado", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:504, nombre:"TLALNEHUAYOCAN", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:812, nombre:"Cosautlan Veracruz", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:1237, nombre:"Tlaltetela", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:3371, nombre:"Coatepec Centro", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:8939, nombre:"Galván", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:9011, nombre:"Mariano Abasolo", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:9021, nombre:"Lagos", region:"Veracruz Centro", zona:"COATEPEC"},
+  {eco:260, nombre:"Juchique", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:637, nombre:"Nautla Maracaibo", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:673, nombre:"Independencia Martinez", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:703, nombre:"Carranza 5 de Mayo", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:704, nombre:"Revolución San Rafael", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:735, nombre:"Casitas Veracruz", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:736, nombre:"Maria de la torre", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:1016, nombre:"MISANTLA E ALATRISTE", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:2867, nombre:"Misantla", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:8932, nombre:"Martinez De La Torre", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:8935, nombre:"Vega De Alatorre", region:"Veracruz Centro", zona:"COSTA ESMERALDA"},
+  {eco:419, nombre:"Soledad De Doblado 5 De Mayo", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:886, nombre:"Tejeria", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:1002, nombre:"Dos Lomas", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:1020, nombre:"Amapolas Puerto", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:1392, nombre:"Manlio Benito Juarez", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:1545, nombre:"ARISTA Y GLADIOLAS", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:2863, nombre:"Soledad De Doblado", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:8961, nombre:"Lazaro Cardenas", region:"Veracruz Centro", zona:"HEROICA"},
+  {eco:214, nombre:"Playa linda", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:338, nombre:"Rio Medio 4", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:822, nombre:"Matamoros Pinos", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:823, nombre:"Intercolonia", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:1145, nombre:"Oasis Sonora", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:1264, nombre:"Valle Gaviota", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:1292, nombre:"Xana", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:1559, nombre:"ROTONDA", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:1689, nombre:"RIO SAN ISIDRO", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:1822, nombre:"Reserva II", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:3555, nombre:"Díaz Mirón", region:"Veracruz Centro", zona:"PORTUARIA"},
+  {eco:121, nombre:"Jalacingo", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:122, nombre:"Teziutlan Lerdo", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:337, nombre:"Chignautla", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:352, nombre:"Hueytamalco", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:618, nombre:"Altotonga Hidalgo", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:2520, nombre:"Altotonga", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:2864, nombre:"Tlapacoyan", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:2920, nombre:"Teziutlan", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:9052, nombre:"Teziutlan 16 De Septiembre", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:9084, nombre:"Tezihutlan Hidalgo", region:"Veracruz Centro", zona:"TEZIUTLAN"},
+  {eco:111, nombre:"Xalapa", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:113, nombre:"Las trancas", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:156, nombre:"Las Vigas Ver", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:207, nombre:"Atenas veracruzana", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:240, nombre:"Alto Lucero", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:263, nombre:"Naolinco", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:591, nombre:"Perote Aldama", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:1125, nombre:"Coacoatzintla Veracruz", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:1417, nombre:"Central Caram", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:1796, nombre:"Boca Negra Abasto", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:2857, nombre:"Ebano", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:8963, nombre:"Castillo Jalapa", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:8966, nombre:"Jilotepec", region:"Veracruz Centro", zona:"XALAPA"},
+  {eco:566, nombre:"Tihuatlan Cuauhtemoc", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:782, nombre:"Tepetzintla", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:1316, nombre:"Ixhuatlan Centro", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:1411, nombre:"Ixcatepec", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:1648, nombre:"COLATLAN", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:2865, nombre:"Alamo", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:9049, nombre:"Llano En Medio", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:9097, nombre:"Tihuatlan", region:"Veracruz Norte", zona:"ALAMO"},
+  {eco:541, nombre:"Tecolutla", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:1158, nombre:"Reforma Coatzintla", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:1321, nombre:"La petromex", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:1576, nombre:"Matamoros Poza Rica", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:1652, nombre:"KAWATZIN COLONIA", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:6460, nombre:"Gutierrez Zamora", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:8960, nombre:"Zamora Veracruz", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:9080, nombre:"Mariano Arista", region:"Veracruz Norte", zona:"GUTIERREZ ZAMORA"},
+  {eco:879, nombre:"Metlaltoyuca", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:915, nombre:"Nuevo Necaxa", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:1307, nombre:"Mecapalapa Puebla", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:1683, nombre:"RAFAEL CRAVIOTO", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:3114, nombre:"Xicotepec", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:4509, nombre:"Huauchinango", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:9040, nombre:"Ceiba", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:9067, nombre:"La Uno 12 De Diciembre", region:"Veracruz Norte", zona:"HUAUCHINANGO"},
+  {eco:671, nombre:"Atlapexco", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:721, nombre:"Jaltocan", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:787, nombre:"Chicontepec Veracruz", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:834, nombre:"Orizatlan Hidalgo", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:1236, nombre:"Huejutla", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:1426, nombre:"Huejutla Mercado", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:1497, nombre:"CHICONTEPEC CENTRO", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:1552, nombre:"TEHUETLAN", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:1597, nombre:"HUEJUTLA CHACATITLA", region:"Veracruz Norte", zona:"HUEJUTLA"},
+  {eco:236, nombre:"Papantla Centro", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:254, nombre:"Entabladero Benito Juarez", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:266, nombre:"Huehuetla", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:502, nombre:"Zozocolco Centro", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:652, nombre:"Filomeno mata 5 de mayo", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:1152, nombre:"Papantla", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:1283, nombre:"Coxquihui Hidalgo y Rayón", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:1535, nombre:"AGUA DULCE PARQUE", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:8949, nombre:"Coyutla", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:9048, nombre:"Nino Artillero", region:"Veracruz Norte", zona:"PAPANTLA"},
+  {eco:223, nombre:"Paseo la burrita", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:643, nombre:"Poza Rica Avila Camacho", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:1259, nombre:"Agua Fria Kiosco", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:1318, nombre:"Las vegas obregon", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:1504, nombre:"ABASTO PLAN DE AYALA", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:1653, nombre:"NACIONAL POZA RICA", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:9037, nombre:"La Burrita Mercado", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:9101, nombre:"Cazones", region:"Veracruz Norte", zona:"POZA RICA"},
+  {eco:369, nombre:"Panuco Abasto", region:"Veracruz Norte", zona:"TAMPICO NORTE"},
+  {eco:875, nombre:"Tampico Mercado", region:"Veracruz Norte", zona:"TAMPICO NORTE"},
+  {eco:876, nombre:"Panuco Mercado", region:"Veracruz Norte", zona:"TAMPICO NORTE"},
+  {eco:959, nombre:"TAMPICO PALAFOX", region:"Veracruz Norte", zona:"TAMPICO NORTE"},
+  {eco:1129, nombre:"Tampico Mercado Norte", region:"Veracruz Norte", zona:"TAMPICO NORTE"},
+  {eco:1404, nombre:"Tampico calle Heroes Centro", region:"Veracruz Norte", zona:"TAMPICO NORTE"},
+  {eco:751, nombre:"Mangos Altamira", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:829, nombre:"Mante suzuki", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:986, nombre:"Estación Manuel", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:1092, nombre:"Aldama Libertad", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:1094, nombre:"Altamira Laguna", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:1246, nombre:"Madero Santa Elena", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:1249, nombre:"Nuevo Tampico", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:1715, nombre:"Cocotero", region:"Veracruz Norte", zona:"TAMPICO SUR"},
+  {eco:592, nombre:"Platon Sanchez", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:622, nombre:"Tempoal", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:760, nombre:"Tantoyuca calle 12 de julio", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:1286, nombre:"El Paso Tantoyuca", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:1289, nombre:"Tantoyuca Mi Mercado", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:1412, nombre:"El Higo Mercado C", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:1732, nombre:"Tantoyuca Centro", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:1792, nombre:"Mi Tantoyuca", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:2858, nombre:"Tantoyuca", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:2860, nombre:"16 de Septiembre", region:"Veracruz Norte", zona:"TANTOYUCA"},
+  {eco:253, nombre:"Tamalin", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:912, nombre:"La Cabrilla Tamiahua", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:931, nombre:"MERCADO HÉROES 47 TUXPAN", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:1009, nombre:"Cerro Azul La Curva", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:1056, nombre:"Ozuluama", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:1187, nombre:"Pueblo Viejo", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:1209, nombre:"Tuxpan los Cabos.", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:1272, nombre:"Tuxpan Americas", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:2868, nombre:"Naranjos", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:2945, nombre:"Cerro Azul", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:9023, nombre:"Tuxpan Radio", region:"Veracruz Norte", zona:"TUXPAN"},
+  {eco:447, nombre:"Cosamaloapan Mercado", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:1530, nombre:"CARRILLO CRUCERO", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:1740, nombre:"LA LAGUNA 2", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:2845, nombre:"Tlacotlalpan", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:2853, nombre:"Benito Juarez", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:2855, nombre:"Carlos A. Carrillo", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:2856, nombre:"Alvarado", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:3455, nombre:"Cosamaloapan", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:8962, nombre:"Alvarado Central", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:9094, nombre:"Alvarado Mercado", region:"Veracruz Sur", zona:"ALVARADO"},
+  {eco:443, nombre:"Totutla", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:471, nombre:"Paso del Macho", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:571, nombre:"Potrero Nuevo", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:1502, nombre:"Av. 6 Cordoba", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:1742, nombre:"MONTE BLANCO CENTRO", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:3544, nombre:"Cordoba Avenida 11", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:7231, nombre:"Cordoba Mercado", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:8964, nombre:"Cordoba San Miguel", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:9014, nombre:"Huatusco", region:"Veracruz Sur", zona:"CAFETALERA"},
+  {eco:259, nombre:"Jalapilla", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:335, nombre:"Cosolapa Mercado", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:435, nombre:"La Perla Centro", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:938, nombre:"Acultzingo Centro", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:1012, nombre:"Maltrata", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:1153, nombre:"Tezonapa", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:1205, nombre:"Tequila", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:1583, nombre:"Camerino Z Mendoza", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:7230, nombre:"Orizaba Cañada", region:"Veracruz Sur", zona:"CORDOBA"},
+  {eco:270, nombre:"Tierra Blanca Mercado", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:315, nombre:"Temascal", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:515, nombre:"LOS NARANJOS VERACRUZ", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:776, nombre:"Cervecera", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:1395, nombre:"Ayotzintepec", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:1438, nombre:"Tierra Blanca Plaza Centro", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:1844, nombre:"SAN BARTOLO", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:7235, nombre:"Tierra Blanca", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:8957, nombre:"Tres Valles", region:"Veracruz Sur", zona:"CUENCA"},
+  {eco:265, nombre:"Camalote", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:313, nombre:"La Mixtequilla", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:371, nombre:"Acatlan Centro", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:436, nombre:"Tlalixcoyan 1", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:877, nombre:"Cuitlahuac san pedro", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:1247, nombre:"Yanga Calle 8", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:1515, nombre:"AMATLAN REYES", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:1555, nombre:"JOACHIN CENTRO", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:1659, nombre:"CUICHAPA CENTRO", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:8953, nombre:"Piedras Negras", region:"Veracruz Sur", zona:"ORIZABA"},
+  {eco:147, nombre:"Jose Azueta", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:333, nombre:"Loma Bonita Mercado", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:478, nombre:"Aldama Tuxtepec", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:520, nombre:"TUXTEPEC CARRANZA", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:734, nombre:"Tuxtepec Hidalgo", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:1235, nombre:"Tuxtepec", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:1731, nombre:"EL CONEJO", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:1785, nombre:"LOMA BONITA CENTRO", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:9046, nombre:"Tuxtepec Juarez", region:"Veracruz Sur", zona:"PIÑERA"},
+  {eco:503, nombre:"JAMAPA ORIENTE", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:562, nombre:"Puente moreno", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:575, nombre:"Cotaxtla Juarez", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:1174, nombre:"Tortuga Puente Moreno", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:1355, nombre:"Anton Lizardo Azueta", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:1527, nombre:"AMERICA PUENTE MORENO", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:1637, nombre:"LOS LAGOS", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:8905, nombre:"El Tejar", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:8958, nombre:"Paso del Toro", region:"Veracruz Sur", zona:"PUERTO"},
+  {eco:364, nombre:"Valle Nacional", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:493, nombre:"Tuxtepec Centro 2", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:680, nombre:"Ojitlan II", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:707, nombre:"El Rubi", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:1157, nombre:"San Jose Chiltepec", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:1244, nombre:"Jalapa de Diaz Juarez", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:1383, nombre:"Tuxtepec 5 De Mayo", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:1641, nombre:"GRAJALES TUXTEPEC", region:"Veracruz Sur", zona:"TUXTEPEC"},
+  {eco:106, nombre:"Angel R. Cabada", region:"Veracruz Sur", zona:"TUXTLAS"},
+  {eco:1605, nombre:"SAN ANDRES CENTRO", region:"Veracruz Sur", zona:"TUXTLAS"},
+  {eco:1664, nombre:"LERDO CARRETERA", region:"Veracruz Sur", zona:"TUXTLAS"},
+  {eco:1811, nombre:"TETILA", region:"Veracruz Sur", zona:"TUXTLAS"},
+  {eco:2869, nombre:"Revolucion Social", region:"Veracruz Sur", zona:"TUXTLAS"},
+  {eco:7254, nombre:"Catemaco", region:"Veracruz Sur", zona:"TUXTLAS"},
+  {eco:9038, nombre:"Santiago Tuxtla", region:"Veracruz Sur", zona:"TUXTLAS"},
+  {eco:9112, nombre:"Manuel de la Cabada", region:"Veracruz Sur", zona:"TUXTLAS"},
+];
+
+/* ============================================================
+   LÓGICA
+   ============================================================ */
+const DEMO = !APPS_SCRIPT_URL;
+if(DEMO) document.getElementById('demoBanner').classList.remove('hide');
+let DEMO_STORE = {}; // {eco: {respuesta, usuario, fecha}}
+
+// ---- Índices del catálogo ----
+const byEco = {};
+CATALOGO.forEach(t=>byEco[t.eco]=t);
+const regiones = [...new Set(CATALOGO.map(t=>t.region))].sort();
+
+// ---- Tabs ----
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const tab=t.dataset.tab;
+  document.getElementById('tab-responder').classList.toggle('hide',tab!=='responder');
+  document.getElementById('tab-resumen').classList.toggle('hide',tab!=='resumen');
+});
+
+// ---- Selectores en cascada ----
+const selR=document.getElementById('selRegion'), selZ=document.getElementById('selZona'), selT=document.getElementById('selTienda');
+regiones.forEach(r=>selR.add(new Option(r,r)));
+
+selR.onchange=()=>{
+  selZ.innerHTML='<option value="">Selecciona zona…</option>';
+  selT.innerHTML='<option value="">Selecciona tienda…</option>';
+  selT.disabled=true; setQuestion(false);
+  if(!selR.value){selZ.disabled=true;return;}
+  const zonas=[...new Set(CATALOGO.filter(t=>t.region===selR.value).map(t=>t.zona))].sort();
+  zonas.forEach(z=>selZ.add(new Option(z,z)));
+  selZ.disabled=false;
+};
+selZ.onchange=()=>{
+  selT.innerHTML='<option value="">Selecciona tienda…</option>';
+  setQuestion(false);
+  if(!selZ.value){selT.disabled=true;return;}
+  CATALOGO.filter(t=>t.region===selR.value && t.zona===selZ.value)
+    .sort((a,b)=>a.eco-b.eco)
+    .forEach(t=>selT.add(new Option(`${t.eco} · ${t.nombre}`,t.eco)));
+  selT.disabled=false;
+};
+selT.onchange=()=>setQuestion(!!selT.value);
+
+function setQuestion(on){
+  const c=document.getElementById('questionCard');
+  c.style.opacity=on?'1':'.5'; c.style.pointerEvents=on?'auto':'none';
+  document.getElementById('btnSi').disabled=!on;
+  document.getElementById('btnNo').disabled=!on;
+  document.getElementById('respMsg').className='msg';
+}
+
+// ---- JSONP helper (patrón GET, sin CORS) ----
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+    const s=document.createElement('script');
+    const timer=setTimeout(()=>{cleanup();reject(new Error('timeout'))},15000);
+    function cleanup(){clearTimeout(timer);delete window[cb];s.remove();}
+    window[cb]=d=>{cleanup();resolve(d);};
+    s.onerror=()=>{cleanup();reject(new Error('network'));};
+    const q=Object.entries(params).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+    s.src=APPS_SCRIPT_URL+'?callback='+cb+'&'+q;
+    document.body.appendChild(s);
+  });
+}
+
+// ---- Guardar respuesta ----
+async function responder(resp){
+  const eco=selT.value; if(!eco) return;
+  const t=byEco[eco];
+  const usuario=document.getElementById('inpUsuario').value.trim();
+  const msg=document.getElementById('respMsg');
+  document.getElementById('btnSi').disabled=true; document.getElementById('btnNo').disabled=true;
+  msg.className='msg load'; msg.textContent='Guardando…';
+  const payload={eco, tienda:t.nombre, region:t.region, zona:t.zona, respuesta:resp, usuario};
+  try{
+    if(DEMO){
+      DEMO_STORE[eco]={respuesta:resp,usuario,fecha:new Date().toISOString()};
+    }else{
+      const r=await jsonp({action:'save',...payload});
+      if(r&&r.error) throw new Error(r.error);
+    }
+    msg.className='msg ok';
+    msg.textContent=`✔ Registrado: ${t.nombre} → ${resp.toUpperCase()}`;
+    setTimeout(()=>{ // reset para la siguiente tienda
+      selT.value=''; setQuestion(false);
+    },1200);
+  }catch(e){
+    msg.className='msg err'; msg.textContent='Error al guardar. Reintenta. ('+e.message+')';
+    document.getElementById('btnSi').disabled=false; document.getElementById('btnNo').disabled=false;
+  }
+}
+document.getElementById('btnSi').onclick=()=>responder('Sí');
+document.getElementById('btnNo').onclick=()=>responder('No');
+
+/* ============================================================
+   RESUMEN
+   ============================================================ */
+function checkPass(){
+  const v=document.getElementById('pass').value;
+  if(v===RESUMEN_PASS){
+    document.getElementById('gate').classList.add('hide');
+    document.getElementById('resumenBody').classList.remove('hide');
+    initFiltros(); cargarResumen();
+  }else{
+    document.getElementById('gateMsg').textContent='Contraseña incorrecta';
+  }
+}
+document.getElementById('pass')?.addEventListener('keydown',e=>{if(e.key==='Enter')checkPass();});
+
+function initFiltros(){
+  const fr=document.getElementById('fRegion');
+  regiones.forEach(r=>fr.add(new Option(r,r)));
+  fr.onchange=()=>{
+    const fz=document.getElementById('fZona');
+    fz.innerHTML='<option value="">Todas</option>';
+    const zs=[...new Set(CATALOGO.filter(t=>!fr.value||t.region===fr.value).map(t=>t.zona))].sort();
+    zs.forEach(z=>fz.add(new Option(z,z)));
+    render();
+  };
+  const zAll=[...new Set(CATALOGO.map(t=>t.zona))].sort();
+  zAll.forEach(z=>document.getElementById('fZona').add(new Option(z,z)));
+  ['fZona','fEstado'].forEach(id=>document.getElementById(id).onchange=render);
+  document.getElementById('fBuscar').oninput=render;
+}
+
+let RESPUESTAS={}; // {eco:{respuesta,usuario,fecha}}
+let chart=null;
+
+async function cargarResumen(){
+  const m=document.getElementById('resMsg'); m.classList.remove('hide'); m.textContent='Cargando datos…';
+  try{
+    if(DEMO){ RESPUESTAS={...DEMO_STORE}; }
+    else{
+      const r=await jsonp({action:'list'});
+      RESPUESTAS={};
+      (r.rows||r||[]).forEach(x=>{ RESPUESTAS[x.eco]={respuesta:x.respuesta,usuario:x.usuario,fecha:x.fecha}; });
+    }
+    m.classList.add('hide'); render();
+  }catch(e){ m.className='msg err'; m.textContent='Error al cargar: '+e.message; }
+}
+
+function filas(){
+  const fr=document.getElementById('fRegion').value, fz=document.getElementById('fZona').value,
+        fe=document.getElementById('fEstado').value, fb=document.getElementById('fBuscar').value.toLowerCase();
+  return CATALOGO.map(t=>{
+    const r=RESPUESTAS[t.eco];
+    const estado=r?r.respuesta:'Pendiente';
+    return {...t, estado, fecha:r?r.fecha:''};
+  }).filter(x=>
+    (!fr||x.region===fr)&&(!fz||x.zona===fz)&&
+    (!fe|| (fe==='Pendiente'?x.estado==='Pendiente':x.estado===fe))&&
+    (!fb|| String(x.eco).includes(fb)||x.nombre.toLowerCase().includes(fb))
+  ).sort((a,b)=>a.region.localeCompare(b.region)||a.zona.localeCompare(b.zona)||a.eco-b.eco);
+}
+
+function render(){
+  const rows=filas();
+  // stats (sobre TODO el catálogo, no filtrado, para totales reales)
+  let si=0,no=0,pend=0;
+  CATALOGO.forEach(t=>{const r=RESPUESTAS[t.eco]; if(!r)pend++; else if(r.respuesta==='Sí')si++; else no++;});
+  document.getElementById('stTot').textContent=CATALOGO.length;
+  document.getElementById('stSi').textContent=si;
+  document.getElementById('stNo').textContent=no;
+  document.getElementById('stPend').textContent=pend;
+  // tabla
+  const tb=document.getElementById('tbody');
+  tb.innerHTML=rows.map(x=>{
+    const cls=x.estado==='Sí'?'si':x.estado==='No'?'no':'pend';
+    const lbl=x.estado==='Pendiente'?'Pendiente':x.estado;
+    const f=x.fecha?new Date(x.fecha).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'2-digit'}):'—';
+    return `<tr><td class="eco">${x.eco}</td><td>${x.nombre}</td><td>${x.region}</td><td>${x.zona}</td>
+      <td><span class="pill ${cls}">${lbl}</span></td><td>${f}</td></tr>`;
+  }).join('')||'<tr><td colspan="6" style="text-align:center;padding:20px;color:#98a">Sin resultados</td></tr>';
+  // chart
+  drawChart(si,no,pend);
+}
+
+function drawChart(si,no,pend){
+  const ctx=document.getElementById('chart');
+  const data={labels:['Con máquina','Sin máquina','Pendientes'],
+    datasets:[{data:[si,no,pend],backgroundColor:['#1FA89B','#e05555','#c8ccd4'],borderWidth:0}]};
+  if(chart){chart.data=data;chart.update();return;}
+  chart=new Chart(ctx,{type:'doughnut',data,options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{legend:{position:'bottom',labels:{font:{size:12,weight:'600'},padding:12}}}}});
+}
+
+function exportCSV(){
+  const rows=filas();
+  const head=['ECO','Tienda','Region','Zona','Estado','Fecha'];
+  const lines=[head.join(',')].concat(rows.map(x=>
+    [x.eco,`"${x.nombre}"`,`"${x.region}"`,`"${x.zona}"`,x.estado,x.fecha||''].join(',')));
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='encuesta_maquina_munecos.csv'; a.click();
+}
+</script>
+</body>
+</html>
