@@ -783,18 +783,42 @@ function drawChart(rampa, refri, esclusa, total){
     plugins:{legend:{position:'bottom',labels:{font:{size:12,weight:'600'},padding:12}}}}});
 }
 
+function csvEscape(v){
+  const s = (v===undefined || v===null) ? '' : String(v);
+  return `"${s.replace(/"/g,'""')}"`;
+}
 function exportCSV(){
-  const rows=filas();
-  const head=['ECO','Tienda','Region','Zona','Direccion','Rampa','Comentario','Refrigerador','Cant_Refrigeradores','Esclusa','Fecha'];
-  const lines=[head.join(',')].concat(rows.map(x=>{
-    const r=x.r||{};
-    return [x.eco,`"${x.nombre}"`,`"${x.region}"`,`"${x.zona}"`,`"${(r.direccion||'').replace(/"/g,'""')}"`,r.rampa||'',`"${(r.comentario||'').replace(/"/g,'""')}"`,
-      r.refrigerador||'', r.refrigerador==='Sí'?(r.cant_refrigeradores||''):'0', r.esclusa||'', r.fecha||''].join(',');
-  }));
-  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='encuesta_infraestructura.csv'; a.click();
+  try{
+    const rows=filas();
+    if(!rows || rows.length===0){
+      alert('No hay tiendas que coincidan con el filtro actual para exportar.');
+      return;
+    }
+    const head=['ECO','Tienda','Region','Zona','Direccion','Rampa','Comentario','Refrigerador','Cant_Refrigeradores','Esclusa','Fecha'];
+    const lines=[head.map(csvEscape).join(',')].concat(rows.map(x=>{
+      const r=x.r||{};
+      return [
+        x.eco, x.nombre, x.region, x.zona, r.direccion||'',
+        r.rampa||'', r.comentario||'', r.refrigerador||'',
+        r.refrigerador==='Sí' ? (r.cant_refrigeradores||'') : '0',
+        r.esclusa||'', r.fecha||''
+      ].map(csvEscape).join(',');
+    }));
+    const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='encuesta_infraestructura.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    const m=document.getElementById('resMsg');
+    m.className='msg ok'; m.classList.remove('hide');
+    m.textContent=`✔ Exportadas ${rows.length} tiendas a CSV. Si no ves el archivo, revisa el ícono de descargas bloqueadas junto a la barra de direcciones.`;
+  }catch(e){
+    alert('No se pudo exportar el CSV: '+e.message);
+  }
 }
 </script>
 </body>
