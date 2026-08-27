@@ -579,8 +579,15 @@ selT.onchange=()=>{
   document.getElementById(id).addEventListener('input', checkGuardar);
 });
 document.getElementById('chkSinAuditoria').addEventListener('change', function(){
-  const inp=document.getElementById('inpFolioAud');
-  if(this.checked){ inp.value=''; inp.disabled=true; } else { inp.disabled=false; }
+  const inpFolio=document.getElementById('inpFolioAud');
+  const inpFecha=document.getElementById('inpFecha');
+  if(this.checked){
+    inpFolio.value=''; inpFolio.disabled=true;
+    inpFecha.value=''; inpFecha.disabled=true;
+  } else {
+    inpFolio.disabled=false;
+    inpFecha.disabled=false;
+  }
   checkGuardar();
 });
 
@@ -588,7 +595,7 @@ function checkGuardar(){
   const sinAud = document.getElementById('chkSinAuditoria').checked;
   const ok = selT.value &&
     (sinAud || document.getElementById('inpFolioAud').value.trim()) &&
-    document.getElementById('inpFecha').value &&
+    (sinAud || document.getElementById('inpFecha').value) &&
     document.getElementById('inpFolioCedis').value.trim() &&
     document.getElementById('inpMonto').value !== '' && +document.getElementById('inpMonto').value >= 0;
   document.getElementById('btnGuardar').disabled=!ok;
@@ -599,6 +606,7 @@ function resetForm(){
   document.getElementById('inpFolioAud').disabled=false;
   document.getElementById('chkSinAuditoria').checked=false;
   document.getElementById('inpFecha').value='';
+  document.getElementById('inpFecha').disabled=false;
   document.getElementById('inpFolioCedis').value='';
   document.getElementById('inpMonto').value='';
   document.getElementById('inpFechaCorreo').value='';
@@ -668,6 +676,7 @@ document.getElementById('btnGuardar').onclick=async()=>{
     document.getElementById('inpFolioAud').disabled=false;
     document.getElementById('chkSinAuditoria').checked=false;
     document.getElementById('inpFecha').value='';
+    document.getElementById('inpFecha').disabled=false;
     document.getElementById('inpFolioCedis').value='';
     document.getElementById('inpMonto').value='';
     document.getElementById('inpFechaCorreo').value='';
