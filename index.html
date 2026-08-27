@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Encuesta · Infraestructura de Tienda · Neto Veracruz</title>
+<title>Encuesta · Folios CEDIS de Confianza · Neto Veracruz</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{
@@ -30,25 +30,15 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
   label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:0 0 6px 2px;
     text-transform:uppercase;letter-spacing:.4px}
-  select,input[type=text],input[type=number],textarea{width:100%;padding:13px 12px;border:1.5px solid var(--line);
+  select,input[type=text],input[type=number],input[type=date]{width:100%;padding:13px 12px;border:1.5px solid var(--line);
     border-radius:10px;font-size:15px;background:#fff;color:var(--ink);margin-bottom:14px;appearance:none;
     font-family:inherit}
-  textarea{resize:vertical;min-height:64px}
-  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--navy2)}
+  select:focus,input:focus{outline:none;border-color:var(--navy2)}
   select:disabled{background:#f1f2f5;color:#aab}
-
-  /* Preguntas */
-  .qnum{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
-    background:var(--navy);color:#fff;font-size:12px;font-weight:800;margin-right:8px;flex:0 0 auto}
   .qtitle{font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;margin-bottom:14px}
-  .toggle2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
-  .tbtn{padding:14px 8px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-weight:700;
-    font-size:14px;color:var(--muted);cursor:pointer;transition:.15s}
-  .tbtn.si.on{background:var(--si);border-color:var(--si);color:#fff}
-  .tbtn.no.on{background:var(--no);border-color:var(--no);color:#fff}
-  .subfield{margin-top:12px;display:none}
-  .subfield.show{display:block}
-  .hint{font-size:12px;color:var(--muted);margin:-8px 0 12px 2px}
+  .estado-badge{margin-top:-6px;margin-bottom:14px;padding:9px 12px;border-radius:9px;font-size:12.5px;font-weight:700;text-align:center}
+  .estado-badge.done{background:#e6f6f3;color:#0d6e60}
+  .estado-badge.pend{background:#fff5e6;color:#8a5200}
 
   .qcard{opacity:.4;pointer-events:none;transition:opacity .2s}
   .qcard.enabled{opacity:1;pointer-events:auto}
@@ -64,10 +54,9 @@
   /* Resumen */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
-  .stat .n{font-size:24px;font-weight:800;line-height:1}
+  .stat .n{font-size:22px;font-weight:800;line-height:1}
   .stat .l{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:4px;letter-spacing:.2px}
-  .stat.tot .n{color:var(--navy)} .stat.pend .n{color:#9aa2b1}
-  .stat.si .n{color:var(--si)}
+  .stat.tot .n{color:var(--navy)} .stat.pend .n{color:#9aa2b1} .stat.si .n{color:var(--si)}
   .filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
   .filters select,.filters input{margin-bottom:0}
   table{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -76,7 +65,7 @@
   td{padding:9px 7px;border-bottom:1px solid var(--line);white-space:nowrap}
   tr:nth-child(even) td{background:#fafbfd}
   .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:800;color:#fff}
-  .pill.si{background:var(--si)} .pill.no{background:var(--no)} .pill.pend{background:#aab1bd}
+  .pill.si{background:var(--si)} .pill.pend{background:#aab1bd}
   .tablebox{max-height:60vh;overflow:auto;border:1px solid var(--line);border-radius:12px}
   .toolbar{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
   .btn{padding:10px 16px;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;
@@ -86,9 +75,6 @@
   .gate{max-width:340px;margin:60px auto;text-align:center}
   .hide{display:none!important}
   .eco{font-weight:700;color:var(--navy2)}
-  .estado-badge{margin-top:6px;padding:9px 12px;border-radius:9px;font-size:12.5px;font-weight:700;text-align:center}
-  .estado-badge.done{background:#e6f6f3;color:#0d6e60}
-  .estado-badge.pend{background:#fff5e6;color:#8a5200}
   @media(max-width:480px){
     .stats{grid-template-columns:repeat(2,1fr)}
     header h1{font-size:13px}
@@ -99,9 +85,9 @@
 <body>
 
 <header>
-  <div class="logo">🏗️</div>
+  <div class="logo">📋</div>
   <div>
-    <h1>Encuesta · Infraestructura de Tienda</h1>
+    <h1>Encuesta · Folios CEDIS de Confianza</h1>
     <p>Neto · Compañía Veracruz</p>
   </div>
 </header>
@@ -126,38 +112,20 @@
     <div class="hide" id="tiendaBadge"></div>
   </div>
 
-  <div class="card qcard" id="q1card">
-    <div class="qtitle"><span class="qnum">1</span>¿Cuenta con rampa de descarga? <span style="font-weight:400;color:var(--muted);font-size:12px;margin-left:6px">(tiendas con descarga a granel)</span></div>
-    <div class="toggle2">
-      <button type="button" class="tbtn si" data-q="rampa" data-v="Sí">SÍ</button>
-      <button type="button" class="tbtn no" data-q="rampa" data-v="No">NO</button>
-    </div>
-    <div class="subfield show" style="margin-top:12px">
-      <label>Dirección de la tienda</label>
-      <input type="text" id="inpDireccion" placeholder="Calle, número, colonia…">
-      <label>Comentarios (opcional)</label>
-      <textarea id="inpComentario" placeholder="Notas sobre la rampa de descarga…"></textarea>
-    </div>
-  </div>
+  <div class="card qcard" id="formCard">
+    <div class="qtitle">📋 Datos del folio</div>
 
-  <div class="card qcard" id="q2card">
-    <div class="qtitle"><span class="qnum">2</span>¿Tienda con refrigerador propio?</div>
-    <div class="toggle2">
-      <button type="button" class="tbtn si" data-q="refrigerador" data-v="Sí">SÍ</button>
-      <button type="button" class="tbtn no" data-q="refrigerador" data-v="No">NO</button>
-    </div>
-    <div class="subfield" id="cantWrap">
-      <label>¿Cuántos refrigeradores tienes?</label>
-      <input type="number" id="inpCantidad" min="1" step="1" placeholder="Ej. 2">
-    </div>
-  </div>
+    <label>Folio de auditoría</label>
+    <input type="text" id="inpFolioAud" placeholder="Ej. AUD-2026-00347">
 
-  <div class="card qcard" id="q3card">
-    <div class="qtitle"><span class="qnum">3</span>¿Tu tienda cuenta con esclusa?</div>
-    <div class="toggle2">
-      <button type="button" class="tbtn si" data-q="esclusa" data-v="Sí">SÍ</button>
-      <button type="button" class="tbtn no" data-q="esclusa" data-v="No">NO</button>
-    </div>
+    <label>Fecha</label>
+    <input type="date" id="inpFecha">
+
+    <label>Folio de CEDIS</label>
+    <input type="text" id="inpFolioCedis" placeholder="Ej. CED-VER-1029">
+
+    <label>Monto de aclaración</label>
+    <input type="number" id="inpMonto" min="0" step="0.01" placeholder="Ej. 1500.00">
   </div>
 
   <div class="card">
@@ -178,13 +146,9 @@
   <div id="resumenBody" class="hide">
     <div class="stats">
       <div class="stat tot"><div class="n" id="stTot">0</div><div class="l">Tiendas</div></div>
-      <div class="stat si"><div class="n" id="stRampa">0</div><div class="l">Con rampa</div></div>
-      <div class="stat si"><div class="n" id="stRefri">0</div><div class="l">Con refri</div></div>
-      <div class="stat si"><div class="n" id="stEsclusa">0</div><div class="l">Con esclusa</div></div>
-    </div>
-    <div class="stats" style="grid-template-columns:1fr 1fr">
+      <div class="stat si"><div class="n" id="stCapt">0</div><div class="l">Capturadas</div></div>
       <div class="stat pend"><div class="n" id="stPend">0</div><div class="l">Pendientes</div></div>
-      <div class="stat tot"><div class="n" id="stRefriTotal">0</div><div class="l">Refrigeradores totales</div></div>
+      <div class="stat tot"><div class="n" id="stMontoTotal">$0</div><div class="l">Monto total</div></div>
     </div>
 
     <div class="chartbox"><canvas id="chart"></canvas></div>
@@ -193,19 +157,14 @@
       <div class="filters">
         <div><label>Región</label><select id="fRegion"><option value="">Todas</option></select></div>
         <div><label>Zona</label><select id="fZona"><option value="">Todas</option></select></div>
-        <div><label>Filtrar por</label>
+        <div><label>Estado</label>
           <select id="fEstado">
             <option value="">Todas</option>
+            <option value="capturada">Capturadas</option>
             <option value="pendiente">Pendientes</option>
-            <option value="rampa_si">Con rampa</option>
-            <option value="rampa_no">Sin rampa</option>
-            <option value="refri_si">Con refrigerador</option>
-            <option value="refri_no">Sin refrigerador</option>
-            <option value="esclusa_si">Con esclusa</option>
-            <option value="esclusa_no">Sin esclusa</option>
           </select>
         </div>
-        <div><label>Buscar</label><input type="text" id="fBuscar" placeholder="ECO o nombre…"></div>
+        <div><label>Buscar</label><input type="text" id="fBuscar" placeholder="ECO, tienda o folio…"></div>
       </div>
       <div class="toolbar">
         <button class="btn" onclick="cargarResumen()">🔄 Actualizar</button>
@@ -216,8 +175,8 @@
     <div class="tablebox">
       <table>
         <thead><tr>
-          <th>ECO</th><th>Tienda</th><th>Región</th><th>Zona</th><th>Dirección</th>
-          <th>Rampa</th><th>Comentario</th><th>Refri</th><th>Cant.</th><th>Esclusa</th><th>Fecha</th>
+          <th>ECO</th><th>Tienda</th><th>Región</th><th>Zona</th>
+          <th>Folio Auditoría</th><th>Fecha</th><th>Folio CEDIS</th><th>Monto Aclaración</th><th>Registrado</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -231,10 +190,10 @@
    CONFIGURACIÓN
    ============================================================ */
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYga8hUhBti0o_YjdYOIVWl95uaeK2rjSTau_0I2SXXT0bV67caKRm828sLFHCjuqK/exec";
-const HOJA = "Infraestructura"; // pestaña destino en el Sheet
+const HOJA = "CEDIS"; // pestaña destino en el Sheet
 const RESUMEN_PASS = "campo26";
 
-// CATÁLOGO — 246 tiendas activas (mismo universo de Merma/Muñecos/Banner)
+// CATÁLOGO — 246 tiendas activas (mismo universo de Merma/Muñecos/Banner/Infraestructura)
 const CATALOGO = [
   {eco:347, nombre:"Av Quevedo", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
   {eco:565, nombre:"Calle 8 Col Carranza", region:"Veracruz Centro", zona:"BOCA DEL RIO"},
@@ -490,7 +449,7 @@ const CATALOGO = [
 const DEMO = !APPS_SCRIPT_URL;
 if(DEMO) document.getElementById('demoBanner').classList.remove('hide');
 let DEMO_STORE = {};
-let RESPUESTAS = {}; // caché compartida: eco -> respuesta ya guardada (para marcar tiendas completas)
+let RESPUESTAS = {}; // caché compartida: eco -> respuesta ya guardada
 
 const byEco = {};
 CATALOGO.forEach(t=>byEco[t.eco]=t);
@@ -520,7 +479,6 @@ function populateRegiones(){
   });
   selR.value=actual;
 }
-
 function populateZonas(){
   const actualZ=selZ.value;
   selZ.innerHTML='<option value="">Selecciona zona…</option>';
@@ -534,7 +492,6 @@ function populateZonas(){
   selZ.disabled=false;
   selZ.value=actualZ;
 }
-
 function populateTiendas(){
   selT.innerHTML='<option value="">Selecciona tienda…</option>';
   if(!selZ.value){selT.disabled=true;return;}
@@ -559,47 +516,43 @@ selZ.onchange=()=>{
 };
 selT.onchange=()=>{
   const on=!!selT.value;
-  ['q1card','q2card','q3card'].forEach(id=>document.getElementById(id).classList.toggle('enabled',on));
+  document.getElementById('formCard').classList.toggle('enabled',on);
   const badge=document.getElementById('tiendaBadge');
   if(!on){ badge.className='hide'; }
   else{
     const done=!!RESPUESTAS[selT.value];
     badge.className='estado-badge '+(done?'done':'pend');
     badge.textContent=done?'✅ Esta tienda ya está completa — guardar actualizará su respuesta':'🕗 Pendiente de responder';
+    if(done){
+      const r=RESPUESTAS[selT.value];
+      document.getElementById('inpFolioAud').value=r.folio_auditoria||'';
+      document.getElementById('inpFecha').value=r.fecha_folio||'';
+      document.getElementById('inpFolioCedis').value=r.folio_cedis||'';
+      document.getElementById('inpMonto').value=r.monto_aclaracion||'';
+    }
   }
   checkGuardar();
 };
 
-/* ---- Toggles SÍ/NO ---- */
-const respuestasForm = { rampa:null, refrigerador:null, esclusa:null };
-document.querySelectorAll('.tbtn').forEach(btn=>{
-  btn.onclick=()=>{
-    const q=btn.dataset.q, v=btn.dataset.v;
-    respuestasForm[q]=v;
-    document.querySelectorAll(`.tbtn[data-q="${q}"]`).forEach(b=>b.classList.toggle('on', b===btn));
-    if(q==='refrigerador'){
-      document.getElementById('cantWrap').classList.toggle('show', v==='Sí');
-      if(v==='No') document.getElementById('inpCantidad').value='';
-    }
-    checkGuardar();
-  };
+['inpFolioAud','inpFecha','inpFolioCedis','inpMonto'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', checkGuardar);
 });
 
 function checkGuardar(){
-  const ok = selT.value && respuestasForm.rampa && respuestasForm.refrigerador && respuestasForm.esclusa &&
-    (respuestasForm.refrigerador==='No' || (document.getElementById('inpCantidad').value && +document.getElementById('inpCantidad').value>0));
+  const ok = selT.value &&
+    document.getElementById('inpFolioAud').value.trim() &&
+    document.getElementById('inpFecha').value &&
+    document.getElementById('inpFolioCedis').value.trim() &&
+    document.getElementById('inpMonto').value !== '' && +document.getElementById('inpMonto').value >= 0;
   document.getElementById('btnGuardar').disabled=!ok;
 }
-document.getElementById('inpCantidad').addEventListener('input', checkGuardar);
 
 function resetForm(){
-  respuestasForm.rampa=null; respuestasForm.refrigerador=null; respuestasForm.esclusa=null;
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
-  document.getElementById('cantWrap').classList.remove('show');
-  document.getElementById('inpCantidad').value='';
-  document.getElementById('inpDireccion').value='';
-  document.getElementById('inpComentario').value='';
-  ['q1card','q2card','q3card'].forEach(id=>document.getElementById(id).classList.remove('enabled'));
+  document.getElementById('inpFolioAud').value='';
+  document.getElementById('inpFecha').value='';
+  document.getElementById('inpFolioCedis').value='';
+  document.getElementById('inpMonto').value='';
+  document.getElementById('formCard').classList.remove('enabled');
   document.getElementById('respMsg').className='msg';
   document.getElementById('tiendaBadge').className='hide';
   checkGuardar();
@@ -629,12 +582,10 @@ document.getElementById('btnGuardar').onclick=async()=>{
   msg.className='msg load'; msg.textContent='Guardando…';
   const payload={
     eco, tienda:t.nombre, region:t.region, zona:t.zona,
-    rampa: respuestasForm.rampa,
-    direccion: document.getElementById('inpDireccion').value.trim(),
-    comentario: document.getElementById('inpComentario').value.trim(),
-    refrigerador: respuestasForm.refrigerador,
-    cant_refrigeradores: respuestasForm.refrigerador==='Sí' ? (document.getElementById('inpCantidad').value||'') : '0',
-    esclusa: respuestasForm.esclusa
+    folio_auditoria: document.getElementById('inpFolioAud').value.trim(),
+    fecha_folio: document.getElementById('inpFecha').value,
+    folio_cedis: document.getElementById('inpFolioCedis').value.trim(),
+    monto_aclaracion: document.getElementById('inpMonto').value
   };
   try{
     if(DEMO){
@@ -655,7 +606,7 @@ document.getElementById('btnGuardar').onclick=async()=>{
 };
 
 /* ---- Carga inicial: trae respuestas ya guardadas para marcar tiendas completas ---- */
-populateRegiones(); // primer render sin datos (mientras carga la caché)
+populateRegiones();
 async function cargaInicial(){
   try{
     if(DEMO){ RESPUESTAS={...DEMO_STORE}; }
@@ -711,7 +662,7 @@ async function cargarResumen(){
       (r.rows||[]).forEach(x=>{ RESPUESTAS[x.eco]=x; });
     }
     m.classList.add('hide'); render();
-    populateRegiones(); // refresca conteos/✅ en la pestaña Responder también
+    populateRegiones();
   }catch(e){ m.className='msg err'; m.textContent='Error al cargar: '+e.message; }
 }
 
@@ -724,62 +675,53 @@ function filas(){
   }).filter(x=>{
     if(fr && x.region!==fr) return false;
     if(fz && x.zona!==fz) return false;
-    if(fb && !String(x.eco).includes(fb) && !x.nombre.toLowerCase().includes(fb)) return false;
+    if(fb){
+      const hay = String(x.eco).includes(fb) || x.nombre.toLowerCase().includes(fb) ||
+        (x.r && ((x.r.folio_auditoria||'').toLowerCase().includes(fb) || (x.r.folio_cedis||'').toLowerCase().includes(fb)));
+      if(!hay) return false;
+    }
+    if(fe==='capturada') return !!x.r;
     if(fe==='pendiente') return !x.r;
-    if(!x.r) return fe==='';
-    if(fe==='rampa_si') return x.r.rampa==='Sí';
-    if(fe==='rampa_no') return x.r.rampa==='No';
-    if(fe==='refri_si') return x.r.refrigerador==='Sí';
-    if(fe==='refri_no') return x.r.refrigerador==='No';
-    if(fe==='esclusa_si') return x.r.esclusa==='Sí';
-    if(fe==='esclusa_no') return x.r.esclusa==='No';
     return true;
   }).sort((a,b)=>a.region.localeCompare(b.region)||a.zona.localeCompare(b.zona)||a.eco-b.eco);
 }
 
+function money(n){ return '$'+(Number(n)||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
 function render(){
   const rows=filas();
-  let rampaSi=0, refriSi=0, esclusaSi=0, pend=0, refriTotal=0;
+  let capt=0, montoTotal=0;
   CATALOGO.forEach(t=>{
     const r=RESPUESTAS[t.eco];
-    if(!r){pend++;return;}
-    if(r.rampa==='Sí') rampaSi++;
-    if(r.refrigerador==='Sí'){ refriSi++; refriTotal += (+r.cant_refrigeradores||0); }
-    if(r.esclusa==='Sí') esclusaSi++;
+    if(r){ capt++; montoTotal += (+r.monto_aclaracion||0); }
   });
   document.getElementById('stTot').textContent=CATALOGO.length;
-  document.getElementById('stRampa').textContent=rampaSi;
-  document.getElementById('stRefri').textContent=refriSi;
-  document.getElementById('stEsclusa').textContent=esclusaSi;
-  document.getElementById('stPend').textContent=pend;
-  document.getElementById('stRefriTotal').textContent=refriTotal;
+  document.getElementById('stCapt').textContent=capt;
+  document.getElementById('stPend').textContent=CATALOGO.length-capt;
+  document.getElementById('stMontoTotal').textContent=money(montoTotal);
 
   const tb=document.getElementById('tbody');
   tb.innerHTML=rows.map(x=>{
     const r=x.r;
-    function pill(v){ if(!v) return '<span class="pill pend">Pendiente</span>';
-      return `<span class="pill ${v==='Sí'?'si':'no'}">${v}</span>`; }
-    const fecha = r&&r.fecha? new Date(r.fecha).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
+    const registrado = r&&r.fecha? new Date(r.fecha).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
+    if(!r){
+      return `<tr><td class="eco">${x.eco}</td><td>${x.nombre}</td><td>${x.region}</td><td>${x.zona}</td>
+        <td colspan="4" style="text-align:center"><span class="pill pend">Pendiente</span></td><td>—</td></tr>`;
+    }
     return `<tr><td class="eco">${x.eco}</td><td>${x.nombre}</td><td>${x.region}</td><td>${x.zona}</td>
-      <td>${(r&&r.direccion)||'—'}</td>
-      <td>${pill(r&&r.rampa)}</td><td>${(r&&r.comentario)||'—'}</td>
-      <td>${pill(r&&r.refrigerador)}</td><td>${r&&r.refrigerador==='Sí'?(r.cant_refrigeradores||'—'):'—'}</td>
-      <td>${pill(r&&r.esclusa)}</td><td>${fecha}</td></tr>`;
-  }).join('')||'<tr><td colspan="11" style="text-align:center;padding:20px;color:#98a">Sin resultados</td></tr>';
+      <td>${r.folio_auditoria||'—'}</td><td>${r.fecha_folio||'—'}</td><td>${r.folio_cedis||'—'}</td>
+      <td>${money(r.monto_aclaracion)}</td><td>${registrado}</td></tr>`;
+  }).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px;color:#98a">Sin resultados</td></tr>';
 
-  drawChart(rampaSi, refriSi, esclusaSi, CATALOGO.length);
+  drawChart(capt, CATALOGO.length-capt);
 }
 
-function drawChart(rampa, refri, esclusa, total){
+function drawChart(capt, pend){
   const ctx=document.getElementById('chart');
-  const data={labels:['Rampa','Refrigerador','Esclusa'],
-    datasets:[
-      {label:'Sí',data:[rampa,refri,esclusa],backgroundColor:'#1FA89B'},
-      {label:'Pendiente / No',data:[total-rampa,total-refri,total-esclusa],backgroundColor:'#c8ccd4'}
-    ]};
+  const data={labels:['Capturadas','Pendientes'],
+    datasets:[{data:[capt,pend],backgroundColor:['#1FA89B','#c8ccd4'],borderWidth:0}]};
   if(chart){chart.data=data;chart.update();return;}
-  chart=new Chart(ctx,{type:'bar',data,options:{responsive:true,maintainAspectRatio:false,
-    scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},
+  chart=new Chart(ctx,{type:'doughnut',data,options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
     plugins:{legend:{position:'bottom',labels:{font:{size:12,weight:'600'},padding:12}}}}});
 }
 
@@ -794,21 +736,20 @@ function exportCSV(){
       alert('No hay tiendas que coincidan con el filtro actual para exportar.');
       return;
     }
-    const head=['ECO','Tienda','Region','Zona','Direccion','Rampa','Comentario','Refrigerador','Cant_Refrigeradores','Esclusa','Fecha'];
+    const head=['ECO','Tienda','Region','Zona','Folio_Auditoria','Fecha_Folio','Folio_CEDIS','Monto_Aclaracion','Registrado'];
     const lines=[head.map(csvEscape).join(',')].concat(rows.map(x=>{
       const r=x.r||{};
       return [
-        x.eco, x.nombre, x.region, x.zona, r.direccion||'',
-        r.rampa||'', r.comentario||'', r.refrigerador||'',
-        r.refrigerador==='Sí' ? (r.cant_refrigeradores||'') : '0',
-        r.esclusa||'', r.fecha||''
+        x.eco, x.nombre, x.region, x.zona,
+        r.folio_auditoria||'', r.fecha_folio||'', r.folio_cedis||'',
+        r.monto_aclaracion||'0', r.fecha||''
       ].map(csvEscape).join(',');
     }));
     const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
-    a.download='encuesta_infraestructura.csv';
+    a.download='encuesta_folios_cedis.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
