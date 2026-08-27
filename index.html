@@ -75,10 +75,19 @@
   .gate{max-width:340px;margin:60px auto;text-align:center}
   .hide{display:none!important}
   .eco{font-weight:700;color:var(--navy2)}
+  .folio-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;
+    background:#f7f9fc;border:1px solid var(--line);border-radius:9px;margin-bottom:8px;font-size:13px}
+  .folio-item:last-child{margin-bottom:0}
+  .folio-item .fmain{font-weight:700;color:var(--navy)}
+  .folio-item .fsub{color:var(--muted);font-size:11.5px;margin-top:2px}
+  .folio-item .fmonto{font-weight:800;color:var(--teal);white-space:nowrap;margin-left:10px}
   .money-wrap{position:relative;margin-bottom:14px}
   .money-wrap .money-sign{position:absolute;left:13px;top:50%;transform:translateY(-50%);
     font-size:15px;font-weight:700;color:var(--muted);pointer-events:none}
   .money-wrap input{padding-left:28px;margin-bottom:0}
+  .chk-sin{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);
+    text-transform:none;letter-spacing:0;margin:-8px 0 14px 2px;cursor:pointer}
+  .chk-sin input{width:auto;margin:0;padding:0;accent-color:var(--orange)}
   @media(max-width:480px){
     .stats{grid-template-columns:repeat(2,1fr)}
     header h1{font-size:13px}
@@ -116,11 +125,17 @@
     <div class="hide" id="tiendaBadge"></div>
   </div>
 
+  <div class="card hide" id="listaFoliosCard">
+    <div class="qtitle" style="margin-bottom:10px">📁 Folios ya registrados en esta tienda</div>
+    <div id="listaFolios"></div>
+  </div>
+
   <div class="card qcard" id="formCard">
-    <div class="qtitle">📋 Datos del folio</div>
+    <div class="qtitle">📋 Nuevo folio a registrar</div>
 
     <label>Folio de auditoría</label>
     <input type="text" id="inpFolioAud" placeholder="Ej. AUD-2026-00347">
+    <label class="chk-sin"><input type="checkbox" id="chkSinAuditoria"> Aún sin folio de auditoría</label>
 
     <label>Fecha</label>
     <input type="date" id="inpFecha">
@@ -133,10 +148,13 @@
       <span class="money-sign">$</span>
       <input type="number" id="inpMonto" min="0" step="0.01" placeholder="1500.00">
     </div>
+
+    <label>Fecha de envío de correo <span style="font-weight:400;text-transform:none;color:var(--muted)">(opcional)</span></label>
+    <input type="date" id="inpFechaCorreo">
   </div>
 
   <div class="card">
-    <button class="btnGuardar" id="btnGuardar" disabled>Guardar respuesta</button>
+    <button class="btnGuardar" id="btnGuardar" disabled>+ Agregar folio</button>
     <div class="msg" id="respMsg"></div>
   </div>
 </div>
@@ -153,9 +171,12 @@
   <div id="resumenBody" class="hide">
     <div class="stats">
       <div class="stat tot"><div class="n" id="stTot">0</div><div class="l">Tiendas</div></div>
-      <div class="stat si"><div class="n" id="stCapt">0</div><div class="l">Capturadas</div></div>
-      <div class="stat pend"><div class="n" id="stPend">0</div><div class="l">Pendientes</div></div>
-      <div class="stat tot"><div class="n" id="stMontoTotal">$0</div><div class="l">Monto total</div></div>
+      <div class="stat si"><div class="n" id="stCapt">0</div><div class="l">Con folio</div></div>
+      <div class="stat pend"><div class="n" id="stPend">0</div><div class="l">Sin folio</div></div>
+      <div class="stat si"><div class="n" id="stFolios">0</div><div class="l">Folios totales</div></div>
+    </div>
+    <div class="stats" style="grid-template-columns:1fr">
+      <div class="stat tot"><div class="n" id="stMontoTotal">$0</div><div class="l">Monto total por aclarar</div></div>
     </div>
 
     <div class="chartbox"><canvas id="chart"></canvas></div>
@@ -183,7 +204,7 @@
       <table>
         <thead><tr>
           <th>ECO</th><th>Tienda</th><th>Región</th><th>Zona</th>
-          <th>Folio Auditoría</th><th>Fecha</th><th>Folio CEDIS</th><th>Monto Aclaración</th><th>Registrado</th>
+          <th>Folio Auditoría</th><th>Fecha</th><th>Folio CEDIS</th><th>Monto Aclaración</th><th>Envío Correo</th><th>Registrado</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -456,7 +477,7 @@ const CATALOGO = [
 const DEMO = !APPS_SCRIPT_URL;
 if(DEMO) document.getElementById('demoBanner').classList.remove('hide');
 let DEMO_STORE = {};
-let RESPUESTAS = {}; // caché compartida: eco -> respuesta ya guardada
+let RESPUESTAS = {}; // caché compartida: eco -> ARREGLO de folios ya guardados
 
 const byEco = {};
 CATALOGO.forEach(t=>byEco[t.eco]=t);
@@ -472,8 +493,9 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 
 const selR=document.getElementById('selRegion'), selZ=document.getElementById('selZona'), selT=document.getElementById('selTienda');
 
+function foliosDe(eco){ return RESPUESTAS[eco] || []; }
 function contarCompletas(lista){
-  return lista.reduce((n,t)=>n+(RESPUESTAS[t.eco]?1:0),0);
+  return lista.reduce((n,t)=>n+(foliosDe(t.eco).length>0?1:0),0);
 }
 
 function populateRegiones(){
@@ -505,11 +527,27 @@ function populateTiendas(){
   CATALOGO.filter(t=>t.region===selR.value && t.zona===selZ.value)
     .sort((a,b)=>a.eco-b.eco)
     .forEach(t=>{
-      const done=!!RESPUESTAS[t.eco];
-      const opt=new Option(`${done?'✅ ':''}${t.eco} · ${t.nombre}${done?' (Completa)':''}`, t.eco);
+      const n=foliosDe(t.eco).length;
+      const opt=new Option(`${n>0?'✅ ':''}${t.eco} · ${t.nombre}${n>0?` (${n} folio${n>1?'s':''})`:''}`, t.eco);
       selT.add(opt);
     });
   selT.disabled=false;
+}
+
+function renderListaFolios(eco){
+  const folios=foliosDe(eco);
+  const card=document.getElementById('listaFoliosCard');
+  const cont=document.getElementById('listaFolios');
+  if(folios.length===0){ card.classList.add('hide'); cont.innerHTML=''; return; }
+  card.classList.remove('hide');
+  cont.innerHTML=folios.map(f=>`
+    <div class="folio-item">
+      <div>
+        <div class="fmain">${f.folio_auditoria||'—'}</div>
+        <div class="fsub">CEDIS: ${f.folio_cedis||'—'} · ${f.fecha_folio||'—'}${f.fecha_envio_correo?' · Correo: '+f.fecha_envio_correo:''}</div>
+      </div>
+      <div class="fmonto">${money(f.monto_aclaracion)}</div>
+    </div>`).join('');
 }
 
 selR.onchange=()=>{
@@ -525,29 +563,31 @@ selT.onchange=()=>{
   const on=!!selT.value;
   document.getElementById('formCard').classList.toggle('enabled',on);
   const badge=document.getElementById('tiendaBadge');
-  if(!on){ badge.className='hide'; }
-  else{
-    const done=!!RESPUESTAS[selT.value];
-    badge.className='estado-badge '+(done?'done':'pend');
-    badge.textContent=done?'✅ Esta tienda ya está completa — guardar actualizará su respuesta':'🕗 Pendiente de responder';
-    if(done){
-      const r=RESPUESTAS[selT.value];
-      document.getElementById('inpFolioAud').value=r.folio_auditoria||'';
-      document.getElementById('inpFecha').value=r.fecha_folio||'';
-      document.getElementById('inpFolioCedis').value=r.folio_cedis||'';
-      document.getElementById('inpMonto').value=r.monto_aclaracion||'';
-    }
+  if(!on){
+    badge.className='hide';
+    document.getElementById('listaFoliosCard').classList.add('hide');
+  }else{
+    const n=foliosDe(selT.value).length;
+    badge.className='estado-badge '+(n>0?'done':'pend');
+    badge.textContent=n>0?`✅ Esta tienda tiene ${n} folio${n>1?'s':''} registrado${n>1?'s':''} — puedes agregar otro`:'🕗 Sin folios registrados aún';
+    renderListaFolios(selT.value);
   }
   checkGuardar();
 };
 
-['inpFolioAud','inpFecha','inpFolioCedis','inpMonto'].forEach(id=>{
+['inpFolioAud','inpFecha','inpFolioCedis','inpMonto','inpFechaCorreo'].forEach(id=>{
   document.getElementById(id).addEventListener('input', checkGuardar);
+});
+document.getElementById('chkSinAuditoria').addEventListener('change', function(){
+  const inp=document.getElementById('inpFolioAud');
+  if(this.checked){ inp.value=''; inp.disabled=true; } else { inp.disabled=false; }
+  checkGuardar();
 });
 
 function checkGuardar(){
+  const sinAud = document.getElementById('chkSinAuditoria').checked;
   const ok = selT.value &&
-    document.getElementById('inpFolioAud').value.trim() &&
+    (sinAud || document.getElementById('inpFolioAud').value.trim()) &&
     document.getElementById('inpFecha').value &&
     document.getElementById('inpFolioCedis').value.trim() &&
     document.getElementById('inpMonto').value !== '' && +document.getElementById('inpMonto').value >= 0;
@@ -556,12 +596,16 @@ function checkGuardar(){
 
 function resetForm(){
   document.getElementById('inpFolioAud').value='';
+  document.getElementById('inpFolioAud').disabled=false;
+  document.getElementById('chkSinAuditoria').checked=false;
   document.getElementById('inpFecha').value='';
   document.getElementById('inpFolioCedis').value='';
   document.getElementById('inpMonto').value='';
+  document.getElementById('inpFechaCorreo').value='';
   document.getElementById('formCard').classList.remove('enabled');
   document.getElementById('respMsg').className='msg';
   document.getElementById('tiendaBadge').className='hide';
+  document.getElementById('listaFoliosCard').classList.add('hide');
   checkGuardar();
 }
 
@@ -580,46 +624,71 @@ function jsonp(params){
   });
 }
 
-/* ---- Guardar ---- */
+/* ---- Guardar (agrega un folio nuevo, nunca sobreescribe) ---- */
 document.getElementById('btnGuardar').onclick=async()=>{
   const eco=selT.value; if(!eco) return;
   const t=byEco[eco];
   const msg=document.getElementById('respMsg');
   document.getElementById('btnGuardar').disabled=true;
   msg.className='msg load'; msg.textContent='Guardando…';
+  const id = eco+'_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+  const sinAud = document.getElementById('chkSinAuditoria').checked;
   const payload={
-    eco, tienda:t.nombre, region:t.region, zona:t.zona,
-    folio_auditoria: document.getElementById('inpFolioAud').value.trim(),
+    id, eco, tienda:t.nombre, region:t.region, zona:t.zona,
+    folio_auditoria: sinAud ? 'Sin auditoría' : document.getElementById('inpFolioAud').value.trim(),
     fecha_folio: document.getElementById('inpFecha').value,
     folio_cedis: document.getElementById('inpFolioCedis').value.trim(),
-    monto_aclaracion: document.getElementById('inpMonto').value
+    monto_aclaracion: document.getElementById('inpMonto').value,
+    fecha_envio_correo: document.getElementById('inpFechaCorreo').value
   };
   try{
     if(DEMO){
-      DEMO_STORE[eco]={...payload, fecha:new Date().toISOString()};
+      DEMO_STORE[id]={...payload, fecha:new Date().toISOString()};
     }else{
-      const r=await jsonp({action:'save',hoja:HOJA,...payload});
+      const r=await jsonp({action:'save',hoja:HOJA,clave_campo:'id',...payload});
       if(r&&r.error) throw new Error(r.error);
     }
+    const nuevoFolio={...payload, fecha:new Date().toISOString()};
+    if(!RESPUESTAS[eco]) RESPUESTAS[eco]=[];
+    RESPUESTAS[eco].push(nuevoFolio);
+
     msg.className='msg ok';
-    msg.textContent=`✔ Registrado: ${t.nombre}`;
-    RESPUESTAS[eco]={...payload, fecha:new Date().toISOString()};
+    msg.textContent=`✔ Folio agregado a ${t.nombre}`;
     populateRegiones();
-    setTimeout(()=>{ selT.value=''; selZ.value=''; selR.value=''; selZ.innerHTML='<option value="">Selecciona zona…</option>'; selZ.disabled=true; selT.innerHTML='<option value="">Selecciona tienda…</option>'; selT.disabled=true; resetForm(); },1300);
+    // refresca la etiqueta de la tienda actual y la lista, sin perder la selección
+    populateTiendas();
+    selT.value=eco;
+    renderListaFolios(eco);
+    const badge=document.getElementById('tiendaBadge');
+    const n=RESPUESTAS[eco].length;
+    badge.className='estado-badge done';
+    badge.textContent=`✅ Esta tienda tiene ${n} folio${n>1?'s':''} registrado${n>1?'s':''} — puedes agregar otro`;
+    // limpia solo los campos del formulario para capturar el siguiente folio
+    document.getElementById('inpFolioAud').value='';
+    document.getElementById('inpFolioAud').disabled=false;
+    document.getElementById('chkSinAuditoria').checked=false;
+    document.getElementById('inpFecha').value='';
+    document.getElementById('inpFolioCedis').value='';
+    document.getElementById('inpMonto').value='';
+    document.getElementById('inpFechaCorreo').value='';
+    checkGuardar();
   }catch(e){
     msg.className='msg err'; msg.textContent='Error al guardar. Reintenta. ('+e.message+')';
     checkGuardar();
   }
 };
 
-/* ---- Carga inicial: trae respuestas ya guardadas para marcar tiendas completas ---- */
+/* ---- Carga inicial: trae folios ya guardados para marcar tiendas completas ---- */
 populateRegiones();
 async function cargaInicial(){
   try{
-    if(DEMO){ RESPUESTAS={...DEMO_STORE}; }
-    else{
+    if(DEMO){
+      RESPUESTAS={};
+      Object.values(DEMO_STORE).forEach(f=>{ (RESPUESTAS[f.eco]=RESPUESTAS[f.eco]||[]).push(f); });
+    }else{
       const r=await jsonp({action:'list',hoja:HOJA});
-      (r.rows||[]).forEach(x=>{ RESPUESTAS[x.eco]=x; });
+      RESPUESTAS={};
+      (r.rows||[]).forEach(x=>{ (RESPUESTAS[x.eco]=RESPUESTAS[x.eco]||[]).push(x); });
     }
     populateRegiones();
   }catch(e){ /* si falla, la app sigue funcionando sin marcar completas */ }
@@ -662,65 +731,80 @@ let chart=null;
 async function cargarResumen(){
   const m=document.getElementById('resMsg'); m.classList.remove('hide'); m.textContent='Cargando datos…';
   try{
-    if(DEMO){ RESPUESTAS={...DEMO_STORE}; }
-    else{
+    if(DEMO){
+      RESPUESTAS={};
+      Object.values(DEMO_STORE).forEach(f=>{ (RESPUESTAS[f.eco]=RESPUESTAS[f.eco]||[]).push(f); });
+    }else{
       const r=await jsonp({action:'list',hoja:HOJA});
       RESPUESTAS={};
-      (r.rows||[]).forEach(x=>{ RESPUESTAS[x.eco]=x; });
+      (r.rows||[]).forEach(x=>{ (RESPUESTAS[x.eco]=RESPUESTAS[x.eco]||[]).push(x); });
     }
     m.classList.add('hide'); render();
     populateRegiones();
   }catch(e){ m.className='msg err'; m.textContent='Error al cargar: '+e.message; }
 }
 
+// filas(): una fila por FOLIO; tiendas sin folio aparecen como una sola fila "Pendiente"
 function filas(){
   const fr=document.getElementById('fRegion').value, fz=document.getElementById('fZona').value,
         fe=document.getElementById('fEstado').value, fb=document.getElementById('fBuscar').value.toLowerCase();
-  return CATALOGO.map(t=>{
-    const r=RESPUESTAS[t.eco];
-    return {...t, r};
-  }).filter(x=>{
-    if(fr && x.region!==fr) return false;
-    if(fz && x.zona!==fz) return false;
-    if(fb){
-      const hay = String(x.eco).includes(fb) || x.nombre.toLowerCase().includes(fb) ||
-        (x.r && ((x.r.folio_auditoria||'').toLowerCase().includes(fb) || (x.r.folio_cedis||'').toLowerCase().includes(fb)));
-      if(!hay) return false;
+  const out=[];
+  CATALOGO.forEach(t=>{
+    if(fr && t.region!==fr) return;
+    if(fz && t.zona!==fz) return;
+    const folios=foliosDe(t.eco);
+    if(folios.length===0){
+      if(fe==='capturada') return;
+      if(fb && !String(t.eco).includes(fb) && !t.nombre.toLowerCase().includes(fb)) return;
+      out.push({...t, r:null});
+    }else{
+      if(fe==='pendiente') return;
+      folios.forEach(r=>{
+        if(fb){
+          const hay = String(t.eco).includes(fb) || t.nombre.toLowerCase().includes(fb) ||
+            (r.folio_auditoria||'').toLowerCase().includes(fb) || (r.folio_cedis||'').toLowerCase().includes(fb);
+          if(!hay) return;
+        }
+        out.push({...t, r});
+      });
     }
-    if(fe==='capturada') return !!x.r;
-    if(fe==='pendiente') return !x.r;
-    return true;
-  }).sort((a,b)=>a.region.localeCompare(b.region)||a.zona.localeCompare(b.zona)||a.eco-b.eco);
+  });
+  return out.sort((a,b)=>a.region.localeCompare(b.region)||a.zona.localeCompare(b.zona)||a.eco-b.eco);
 }
 
 function money(n){ return '$'+(Number(n)||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function render(){
   const rows=filas();
-  let capt=0, montoTotal=0;
+  let tiendasConFolio=0, totalFolios=0, montoTotal=0;
   CATALOGO.forEach(t=>{
-    const r=RESPUESTAS[t.eco];
-    if(r){ capt++; montoTotal += (+r.monto_aclaracion||0); }
+    const folios=foliosDe(t.eco);
+    if(folios.length>0){
+      tiendasConFolio++;
+      totalFolios += folios.length;
+      folios.forEach(f=> montoTotal += (+f.monto_aclaracion||0));
+    }
   });
   document.getElementById('stTot').textContent=CATALOGO.length;
-  document.getElementById('stCapt').textContent=capt;
-  document.getElementById('stPend').textContent=CATALOGO.length-capt;
+  document.getElementById('stCapt').textContent=tiendasConFolio;
+  document.getElementById('stPend').textContent=CATALOGO.length-tiendasConFolio;
+  document.getElementById('stFolios').textContent=totalFolios;
   document.getElementById('stMontoTotal').textContent=money(montoTotal);
 
   const tb=document.getElementById('tbody');
   tb.innerHTML=rows.map(x=>{
     const r=x.r;
-    const registrado = r&&r.fecha? new Date(r.fecha).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
     if(!r){
       return `<tr><td class="eco">${x.eco}</td><td>${x.nombre}</td><td>${x.region}</td><td>${x.zona}</td>
-        <td colspan="4" style="text-align:center"><span class="pill pend">Pendiente</span></td><td>—</td></tr>`;
+        <td colspan="5" style="text-align:center"><span class="pill pend">Sin folios</span></td><td>—</td></tr>`;
     }
+    const registrado = r.fecha? new Date(r.fecha).toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
     return `<tr><td class="eco">${x.eco}</td><td>${x.nombre}</td><td>${x.region}</td><td>${x.zona}</td>
       <td>${r.folio_auditoria||'—'}</td><td>${r.fecha_folio||'—'}</td><td>${r.folio_cedis||'—'}</td>
-      <td>${money(r.monto_aclaracion)}</td><td>${registrado}</td></tr>`;
-  }).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px;color:#98a">Sin resultados</td></tr>';
+      <td>${money(r.monto_aclaracion)}</td><td>${r.fecha_envio_correo||'—'}</td><td>${registrado}</td></tr>`;
+  }).join('')||'<tr><td colspan="10" style="text-align:center;padding:20px;color:#98a">Sin resultados</td></tr>';
 
-  drawChart(capt, CATALOGO.length-capt);
+  drawChart(tiendasConFolio, CATALOGO.length-tiendasConFolio);
 }
 
 function drawChart(capt, pend){
@@ -743,13 +827,13 @@ function exportCSV(){
       alert('No hay tiendas que coincidan con el filtro actual para exportar.');
       return;
     }
-    const head=['ECO','Tienda','Region','Zona','Folio_Auditoria','Fecha_Folio','Folio_CEDIS','Monto_Aclaracion','Registrado'];
+    const head=['ECO','Tienda','Region','Zona','Folio_Auditoria','Fecha_Folio','Folio_CEDIS','Monto_Aclaracion','Fecha_Envio_Correo','Registrado'];
     const lines=[head.map(csvEscape).join(',')].concat(rows.map(x=>{
       const r=x.r||{};
       return [
         x.eco, x.nombre, x.region, x.zona,
         r.folio_auditoria||'', r.fecha_folio||'', r.folio_cedis||'',
-        r.monto_aclaracion||'0', r.fecha||''
+        r.monto_aclaracion||'0', r.fecha_envio_correo||'', r.fecha||''
       ].map(csvEscape).join(',');
     }));
     const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
