@@ -75,6 +75,10 @@
   .gate{max-width:340px;margin:60px auto;text-align:center}
   .hide{display:none!important}
   .eco{font-weight:700;color:var(--navy2)}
+  .money-wrap{position:relative;margin-bottom:14px}
+  .money-wrap .money-sign{position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    font-size:15px;font-weight:700;color:var(--muted);pointer-events:none}
+  .money-wrap input{padding-left:28px;margin-bottom:0}
   @media(max-width:480px){
     .stats{grid-template-columns:repeat(2,1fr)}
     header h1{font-size:13px}
@@ -125,7 +129,10 @@
     <input type="text" id="inpFolioCedis" placeholder="Ej. CED-VER-1029">
 
     <label>Monto de aclaración</label>
-    <input type="number" id="inpMonto" min="0" step="0.01" placeholder="Ej. 1500.00">
+    <div class="money-wrap">
+      <span class="money-sign">$</span>
+      <input type="number" id="inpMonto" min="0" step="0.01" placeholder="1500.00">
+    </div>
   </div>
 
   <div class="card">
