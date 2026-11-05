@@ -142,45 +142,68 @@
   </div>
 
   <div class="card qcard" id="q0card">
-    <div class="qtitle"><span class="qnum">1</span>¿Qué teléfono utiliza cada puesto en esta tienda?</div>
-    <label>Gerente</label>
+    <div class="qtitle"><span class="qnum">1</span>Teléfono y uso de la app por puesto</div>
+
+    <label style="font-weight:800">Gerente</label>
     <div class="toggle3">
       <button type="button" class="tbtn3" data-q="telefono_gerente" data-v="iPhone">📱 IPHONE</button>
       <button type="button" class="tbtn3" data-q="telefono_gerente" data-v="Android">🤖 ANDROID</button>
       <button type="button" class="tbtn3 napp" data-q="telefono_gerente" data-v="No aplica">NO APLICA</button>
     </div>
-    <label style="margin-top:14px">Líder</label>
+    <div class="subfield" id="appsub_gerente">
+      <label>¿Tiene instalada la app?</label>
+      <div class="toggle2">
+        <button type="button" class="tbtn si" data-q="app_gerente" data-v="Sí">SÍ</button>
+        <button type="button" class="tbtn no" data-q="app_gerente" data-v="No">NO</button>
+      </div>
+      <label style="margin-top:10px">¿Puede usarla sin problema?</label>
+      <div class="toggle2">
+        <button type="button" class="tbtn si" data-q="usa_gerente" data-v="Sí">SÍ</button>
+        <button type="button" class="tbtn no" data-q="usa_gerente" data-v="No">NO</button>
+      </div>
+    </div>
+
+    <label style="font-weight:800;margin-top:18px;display:block">Líder</label>
     <div class="toggle3">
       <button type="button" class="tbtn3" data-q="telefono_lider" data-v="iPhone">📱 IPHONE</button>
       <button type="button" class="tbtn3" data-q="telefono_lider" data-v="Android">🤖 ANDROID</button>
       <button type="button" class="tbtn3 napp" data-q="telefono_lider" data-v="No aplica">NO APLICA</button>
     </div>
-    <label style="margin-top:14px">Jefe de turno</label>
+    <div class="subfield" id="appsub_lider">
+      <label>¿Tiene instalada la app?</label>
+      <div class="toggle2">
+        <button type="button" class="tbtn si" data-q="app_lider" data-v="Sí">SÍ</button>
+        <button type="button" class="tbtn no" data-q="app_lider" data-v="No">NO</button>
+      </div>
+      <label style="margin-top:10px">¿Puede usarla sin problema?</label>
+      <div class="toggle2">
+        <button type="button" class="tbtn si" data-q="usa_lider" data-v="Sí">SÍ</button>
+        <button type="button" class="tbtn no" data-q="usa_lider" data-v="No">NO</button>
+      </div>
+    </div>
+
+    <label style="font-weight:800;margin-top:18px;display:block">Jefe de turno</label>
     <div class="toggle3">
       <button type="button" class="tbtn3" data-q="telefono_jefeturno" data-v="iPhone">📱 IPHONE</button>
       <button type="button" class="tbtn3" data-q="telefono_jefeturno" data-v="Android">🤖 ANDROID</button>
       <button type="button" class="tbtn3 napp" data-q="telefono_jefeturno" data-v="No aplica">NO APLICA</button>
     </div>
-  </div>
-
-  <div class="card qcard" id="q1card">
-    <div class="qtitle"><span class="qnum">2</span>¿Tienes instalada la app de Conteos Cíclicos?</div>
-    <div class="toggle2">
-      <button type="button" class="tbtn si" data-q="app_instalada" data-v="Sí">SÍ</button>
-      <button type="button" class="tbtn no" data-q="app_instalada" data-v="No">NO</button>
-    </div>
-  </div>
-
-  <div class="card qcard" id="q2card">
-    <div class="qtitle"><span class="qnum">3</span>¿Puedes utilizar la app sin problema?</div>
-    <div class="toggle2">
-      <button type="button" class="tbtn si" data-q="puede_usar" data-v="Sí">SÍ</button>
-      <button type="button" class="tbtn no" data-q="puede_usar" data-v="No">NO</button>
+    <div class="subfield" id="appsub_jefeturno">
+      <label>¿Tiene instalada la app?</label>
+      <div class="toggle2">
+        <button type="button" class="tbtn si" data-q="app_jefeturno" data-v="Sí">SÍ</button>
+        <button type="button" class="tbtn no" data-q="app_jefeturno" data-v="No">NO</button>
+      </div>
+      <label style="margin-top:10px">¿Puede usarla sin problema?</label>
+      <div class="toggle2">
+        <button type="button" class="tbtn si" data-q="usa_jefeturno" data-v="Sí">SÍ</button>
+        <button type="button" class="tbtn no" data-q="usa_jefeturno" data-v="No">NO</button>
+      </div>
     </div>
   </div>
 
   <div class="card qcard" id="q3card">
-    <div class="qtitle"><span class="qnum">4</span>¿La ubicación de la tienda dentro de la app es correcta?</div>
+    <div class="qtitle"><span class="qnum">2</span>¿La ubicación de la tienda dentro de la app es correcta?</div>
     <div class="toggle2">
       <button type="button" class="tbtn si" data-q="ubicacion_correcta" data-v="Sí">SÍ</button>
       <button type="button" class="tbtn no" data-q="ubicacion_correcta" data-v="No">NO</button>
@@ -285,8 +308,8 @@
     <div class="tablebox">
       <table>
         <thead><tr>
-          <th>ECO</th><th>Tienda</th><th>Región</th><th>Zona</th><th>Tel. Gerente</th><th>Tel. Líder</th><th>Tel. Jefe turno</th>
-          <th>App instalada</th><th>Puede usarla</th><th>Ubicación OK</th><th>Coordenadas</th><th>Fecha</th>
+          <th>ECO</th><th>Tienda</th><th>Región</th><th>Zona</th><th>Gerente</th><th>Líder</th><th>Jefe de turno</th>
+          <th>Ubicación OK</th><th>Coordenadas</th><th>Fecha</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -629,7 +652,7 @@ selZ.onchange=()=>{
 };
 selT.onchange=()=>{
   const on=!!selT.value;
-  ['q0card','q1card','q2card','q3card'].forEach(id=>document.getElementById(id).classList.toggle('enabled',on));
+  ['q0card','q3card'].forEach(id=>document.getElementById(id).classList.toggle('enabled',on));
   const badge=document.getElementById('tiendaBadge');
   if(!on){ badge.className='hide'; }
   else{
@@ -640,13 +663,26 @@ selT.onchange=()=>{
   checkGuardar();
 };
 
-/* ---- Toggles SÍ/NO y de selección simple (teléfono por puesto) ---- */
-const respuestasForm = { telefono_gerente:null, telefono_lider:null, telefono_jefeturno:null, app_instalada:null, puede_usar:null, ubicacion_correcta:null };
+/* ---- Toggles SÍ/NO y de selección simple (teléfono y uso de app por puesto) ---- */
+const PUESTOS = ['gerente','lider','jefeturno'];
+const respuestasForm = { ubicacion_correcta:null };
+PUESTOS.forEach(p=>{ respuestasForm['telefono_'+p]=null; respuestasForm['app_'+p]=null; respuestasForm['usa_'+p]=null; });
+
 document.querySelectorAll('.tbtn, .tbtn3').forEach(btn=>{
   btn.onclick=()=>{
     const q=btn.dataset.q, v=btn.dataset.v;
     respuestasForm[q]=v;
     document.querySelectorAll(`[data-q="${q}"]`).forEach(b=>b.classList.toggle('on', b===btn));
+    if(q.startsWith('telefono_')){
+      const p=q.slice('telefono_'.length);
+      const sub=document.getElementById('appsub_'+p);
+      const activo = v==='Android'; // en iPhone no se puede instalar la app, no se piden esas preguntas
+      sub.classList.toggle('show', activo);
+      if(!activo){
+        respuestasForm['app_'+p]=null; respuestasForm['usa_'+p]=null;
+        document.querySelectorAll(`[data-q="app_${p}"], [data-q="usa_${p}"]`).forEach(b=>b.classList.remove('on'));
+      }
+    }
     if(q==='ubicacion_correcta'){
       document.getElementById('geoWrap').classList.toggle('show', v==='No');
       if(v==='Sí'){
@@ -694,21 +730,26 @@ document.getElementById('btnGeo').onclick=()=>{
 function checkGuardar(){
   const necesitaCoords = respuestasForm.ubicacion_correcta==='No';
   const coordsOk = !necesitaCoords || (document.getElementById('inpLat').value!=='' && document.getElementById('inpLng').value!=='');
-  const ok = selT.value && respuestasForm.telefono_gerente && respuestasForm.telefono_lider && respuestasForm.telefono_jefeturno &&
-    respuestasForm.app_instalada && respuestasForm.puede_usar && respuestasForm.ubicacion_correcta && coordsOk;
+  const puestosOk = PUESTOS.every(p=>{
+    const tel=respuestasForm['telefono_'+p];
+    if(!tel) return false;
+    if(tel!=='Android') return true; // iPhone y "No aplica" no requieren app/usa
+    return !!respuestasForm['app_'+p] && !!respuestasForm['usa_'+p];
+  });
+  const ok = selT.value && puestosOk && respuestasForm.ubicacion_correcta && coordsOk;
   document.getElementById('btnGuardar').disabled=!ok;
 }
 
 function resetForm(){
-  respuestasForm.telefono_gerente=null; respuestasForm.telefono_lider=null; respuestasForm.telefono_jefeturno=null;
-  respuestasForm.app_instalada=null; respuestasForm.puede_usar=null; respuestasForm.ubicacion_correcta=null;
+  PUESTOS.forEach(p=>{ respuestasForm['telefono_'+p]=null; respuestasForm['app_'+p]=null; respuestasForm['usa_'+p]=null; });
+  respuestasForm.ubicacion_correcta=null;
   document.querySelectorAll('.tbtn, .tbtn3').forEach(b=>b.classList.remove('on'));
-  document.getElementById('geoWrap').classList.remove('show');
+  document.querySelectorAll('.subfield').forEach(s=>s.classList.remove('show'));
   document.getElementById('inpLat').value='';
   document.getElementById('inpLng').value='';
   document.getElementById('geoMsg').textContent='';
   document.getElementById('geoMsg').className='geo-msg';
-  ['q0card','q1card','q2card','q3card'].forEach(id=>document.getElementById(id).classList.remove('enabled'));
+  ['q0card','q3card'].forEach(id=>document.getElementById(id).classList.remove('enabled'));
   document.getElementById('respMsg').className='msg';
   document.getElementById('tiendaBadge').className='hide';
   checkGuardar();
@@ -738,15 +779,15 @@ document.getElementById('btnGuardar').onclick=async()=>{
   msg.className='msg load'; msg.textContent='Guardando…';
   const payload={
     eco, tienda:t.nombre, region:t.region, zona:t.zona,
-    telefono_gerente: respuestasForm.telefono_gerente,
-    telefono_lider: respuestasForm.telefono_lider,
-    telefono_jefeturno: respuestasForm.telefono_jefeturno,
-    app_instalada: respuestasForm.app_instalada,
-    puede_usar: respuestasForm.puede_usar,
     ubicacion_correcta: respuestasForm.ubicacion_correcta,
     lat: respuestasForm.ubicacion_correcta==='No' ? document.getElementById('inpLat').value : '',
     lng: respuestasForm.ubicacion_correcta==='No' ? document.getElementById('inpLng').value : ''
   };
+  PUESTOS.forEach(p=>{
+    payload['telefono_'+p]=respuestasForm['telefono_'+p];
+    payload['app_'+p]=respuestasForm['app_'+p]||'';
+    payload['usa_'+p]=respuestasForm['usa_'+p]||'';
+  });
   try{
     if(DEMO){
       DEMO_STORE[eco]={...payload, fecha:new Date().toISOString()};
@@ -849,9 +890,9 @@ function filas(){
     if(fb && !String(x.eco).includes(fb) && !x.nombre.toLowerCase().includes(fb)) return false;
     if(fe==='pendiente') return !x.r;
     if(!x.r) return fe==='';
-    if(fe==='app_si') return x.r.app_instalada==='Sí';
-    if(fe==='app_no') return x.r.app_instalada==='No';
-    if(fe==='usa_no') return x.r.puede_usar==='No';
+    if(fe==='app_si') return PUESTOS.some(p=>x.r['app_'+p]==='Sí');
+    if(fe==='app_no') return PUESTOS.some(p=>x.r['app_'+p]==='No');
+    if(fe==='usa_no') return PUESTOS.some(p=>x.r['usa_'+p]==='No');
     if(fe==='ubi_no') return x.r.ubicacion_correcta==='No';
     return true;
   }).sort((a,b)=>a.region.localeCompare(b.region)||a.zona.localeCompare(b.zona)||a.eco-b.eco);
@@ -863,8 +904,12 @@ function render(){
   CATALOGO.forEach(t=>{
     const r=RESPUESTAS[t.eco];
     if(!r){pend++;return;}
-    if(r.app_instalada==='Sí') appSi++; else if(r.app_instalada==='No') appNo++;
-    if(r.puede_usar==='Sí') usaSi++; else if(r.puede_usar==='No') usaNo++;
+    PUESTOS.forEach(p=>{
+      const tel=r['telefono_'+p];
+      if(!tel || tel==='No aplica') return;
+      if(r['app_'+p]==='Sí') appSi++; else if(r['app_'+p]==='No') appNo++;
+      if(r['usa_'+p]==='Sí') usaSi++; else if(r['usa_'+p]==='No') usaNo++;
+    });
     if(r.ubicacion_correcta==='Sí') ubiSi++; else if(r.ubicacion_correcta==='No') ubiNo++;
   });
   document.getElementById('stTot').textContent=CATALOGO.length;
@@ -875,6 +920,16 @@ function render(){
   document.getElementById('stUsaNo').textContent=usaNo;
   document.getElementById('stUbiSi').textContent=ubiSi;
   document.getElementById('stUbiNo').textContent=ubiNo;
+
+  function celdaPuesto(r, p){
+    if(!r || !r['telefono_'+p]) return '—';
+    const tel=r['telefono_'+p];
+    if(tel==='No aplica') return '<span style="color:#b7bdc8">No aplica</span>';
+    const app=r['app_'+p], usa=r['usa_'+p];
+    const pillApp = app ? `<span class="pill ${app==='Sí'?'si':'no'}">App ${app==='Sí'?'✓':'✗'}</span>` : '';
+    const pillUsa = usa ? `<span class="pill ${usa==='Sí'?'si':'no'}">Usa ${usa==='Sí'?'✓':'✗'}</span>` : '';
+    return `${tel}<br>${pillApp} ${pillUsa}`;
+  }
 
   const tb=document.getElementById('tbody');
   tb.innerHTML=rows.map(x=>{
@@ -887,10 +942,9 @@ function render(){
       coords=`<a class="maplink" target="_blank" href="https://maps.google.com/?q=${r.lat},${r.lng}">${r.lat}, ${r.lng}</a>`;
     }
     return `<tr><td class="eco">${x.eco}</td><td>${x.nombre}</td><td>${x.region}</td><td>${x.zona}</td>
-      <td>${(r&&r.telefono_gerente)||'—'}</td><td>${(r&&r.telefono_lider)||'—'}</td><td>${(r&&r.telefono_jefeturno)||'—'}</td>
-      <td>${pill(r&&r.app_instalada)}</td><td>${pill(r&&r.puede_usar)}</td>
+      <td>${celdaPuesto(r,'gerente')}</td><td>${celdaPuesto(r,'lider')}</td><td>${celdaPuesto(r,'jefeturno')}</td>
       <td>${pill(r&&r.ubicacion_correcta)}</td><td>${coords}</td><td>${fecha}</td></tr>`;
-  }).join('')||'<tr><td colspan="12" style="text-align:center;padding:20px;color:#98a">Sin resultados</td></tr>';
+  }).join('')||'<tr><td colspan="10" style="text-align:center;padding:20px;color:#98a">Sin resultados</td></tr>';
 
   drawChart(appSi, appNo, pend);
   renderCruce();
@@ -899,26 +953,24 @@ function render(){
 function renderCruce(){
   // Respeta los filtros de región/zona (no los de puesto/teléfono, que son los ejes de la tabla)
   const fr=document.getElementById('fRegion').value, fz=document.getElementById('fZona').value;
-  const PUESTOS=['Gerente','Líder','Jefe de turno'];
-  const TELS=['iPhone','Android'];
-  const tieneProblema = r => r && (r.app_instalada==='No' || r.puede_usar==='No');
+  const PUESTOS_LABEL = {gerente:'Gerente', lider:'Líder', jefeturno:'Jefe de turno'};
+  const tieneProblema = (r,p) => r && (r['app_'+p]==='No' || r['usa_'+p]==='No');
 
-  const celda = (puesto, tel) => {
+  const celda = (p, tel) => {
     let total=0, prob=0;
-    const campo=CAMPO_TEL_PUESTO[puesto];
     CATALOGO.forEach(t=>{
       if(fr && t.region!==fr) return;
       if(fz && t.zona!==fz) return;
       const r=RESPUESTAS[t.eco];
-      if(!r || r[campo]!==tel) return;
+      if(!r || r['telefono_'+p]!==tel) return;
       total++;
-      if(tieneProblema(r)) prob++;
+      if(tieneProblema(r,p)) prob++;
     });
     return {total, prob};
   };
 
   const tb=document.getElementById('crossBody');
-  tb.innerHTML=PUESTOS.map(p=>{
+  tb.innerHTML=Object.keys(PUESTOS_LABEL).map(p=>{
     const cIph=celda(p,'iPhone'), cAnd=celda(p,'Android');
     const totFila=cIph.total+cAnd.total, probFila=cIph.prob+cAnd.prob;
     function fmt(c){
@@ -927,7 +979,7 @@ function renderCruce(){
       const cls = c.prob>0 ? (pct>=50?'pill no':'pill pend') : 'pill si';
       return `<span class="${cls}">${c.prob}/${c.total}${c.prob>0?` (${pct}%)`:''}</span>`;
     }
-    return `<tr><td style="font-weight:700">${p}</td><td>${fmt(cIph)}</td><td>${fmt(cAnd)}</td>
+    return `<tr><td style="font-weight:700">${PUESTOS_LABEL[p]}</td><td>${fmt(cIph)}</td><td>${fmt(cAnd)}</td>
       <td style="font-weight:700">${totFila>0?`${probFila}/${totFila}`:'—'}</td></tr>`;
   }).join('');
 }
@@ -946,16 +998,20 @@ function csvEscape(v){
   return `"${s.replace(/"/g,'""')}"`;
 }
 function filasExport(){
+  const ETIQ={gerente:'Gerente', lider:'Lider', jefeturno:'JefeTurno'};
   return filas().map(x=>{
     const r=x.r||{};
-    return {
-      ECO:x.eco, Tienda:x.nombre, Region:x.region, Zona:x.zona,
-      Telefono_Gerente:r.telefono_gerente||'', Telefono_Lider:r.telefono_lider||'', Telefono_JefeTurno:r.telefono_jefeturno||'',
-      App_Instalada:r.app_instalada||'', Puede_Usarla:r.puede_usar||'',
-      Ubicacion_Correcta:r.ubicacion_correcta||'',
-      Latitud:r.lat||'', Longitud:r.lng||'',
-      Fecha:r.fecha||''
-    };
+    const row={ ECO:x.eco, Tienda:x.nombre, Region:x.region, Zona:x.zona };
+    PUESTOS.forEach(p=>{
+      row['Telefono_'+ETIQ[p]]=r['telefono_'+p]||'';
+      row['App_'+ETIQ[p]]=r['app_'+p]||'';
+      row['Usa_'+ETIQ[p]]=r['usa_'+p]||'';
+    });
+    row.Ubicacion_Correcta=r.ubicacion_correcta||'';
+    row.Latitud=r.lat||'';
+    row.Longitud=r.lng||'';
+    row.Fecha=r.fecha||'';
+    return row;
   });
 }
 function exportCSV(){
@@ -991,7 +1047,9 @@ function exportXLSX(){
       return;
     }
     const ws=XLSX.utils.json_to_sheet(rows);
-    ws['!cols']=[{wch:8},{wch:28},{wch:16},{wch:16},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:18},{wch:12},{wch:12},{wch:22}];
+    ws['!cols']=[{wch:8},{wch:28},{wch:16},{wch:16},
+      {wch:12},{wch:9},{wch:9}, {wch:12},{wch:9},{wch:9}, {wch:12},{wch:9},{wch:9},
+      {wch:18},{wch:12},{wch:12},{wch:22}];
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Conteos Ciclicos');
     XLSX.writeFile(wb, 'encuesta_conteos_ciclicos.xlsx');
